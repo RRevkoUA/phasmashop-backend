@@ -4,7 +4,7 @@ import * as argon from 'argon2';
 import { AuthDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/schemas/users.schema';
-import { Model, MongooseError, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -30,7 +30,8 @@ export class AuthService {
   }
 
   async signin(dto: AuthDto) {
-    // TODO :: Create signin function
+    const user = await this.userModule.findOne({ email: dto.email });
+
   }
 
   async signToken(userId: Types.ObjectId, email: string): Promise<object> {
