@@ -9,8 +9,7 @@ export class UsersService {
   constructor(@InjectModel(User.name) private userModule: Model<User>) {}
 
   create(dto: CreateUserDto) {
-    this.userModule.create(dto);
-    return `This action adds a new user ${dto.username}`;
+    return `This action adds a new user`;
   }
 
   findAll() {
