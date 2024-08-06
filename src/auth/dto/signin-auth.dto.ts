@@ -4,9 +4,9 @@ import { IsString } from 'class-validator';
 export class SigninAuthDto {
   @IsString()
   @ApiProperty({
-    default: 'loginOrEmail',
+    default: 'usernameOrEmail',
   })
-  loginOrEmail: string;
+  usernameOrEmail: string;
 
   @IsString()
   @ApiProperty({
