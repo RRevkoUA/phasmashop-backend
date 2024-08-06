@@ -7,7 +7,7 @@ import {
   IsString,
 } from 'class-validator';
 
-export class AuthDto {
+export class SignupAuthDto {
   @IsString()
   @ApiProperty({
     default: 'user',
