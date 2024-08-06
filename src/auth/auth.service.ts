@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as argon from 'argon2';
+import { SigninAuthDto, SignupAuthDto } from './dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from 'src/schemas/users.schema';
+import { Model, Types } from 'mongoose';
+import { isEmail } from 'class-validator';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private jwt: JwtService,
+    @InjectModel(User.name) private userModule: Model<User>,
+  ) {}
+
+  async signup(dto: SignupAuthDto) {
+    try {
+      const token = await argon.hash(dto.password);
+      const user = await this.userModule.create({
+        ...dto,
+        hash: token,
+      });
+      return this.signToken(user._id, user.email);
+    } catch (err) {
+      if (err.code === 11000) {
+        throw new ForbiddenException('this username or email already in use');
+      }
+      throw err;
+    }
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async signin(dto: SigninAuthDto) {
+    let user;
+
+    if (isEmail(dto.usernameOrEmail)) {
+      user = await this.userModule.findOne({
+        email: dto.usernameOrEmail,
+      });
+    } else {
+      user = await this.userModule.findOne({
+        username: dto.usernameOrEmail,
+      });
+    }
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    const isCorrectPassword = await argon.verify(user.hash, dto.password);
+
+    if (!isCorrectPassword) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    return this.signToken(user._id, user.email);
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  async signToken(userId: Types.ObjectId, email: string): Promise<object> {
+    const payload = {
+      sub: userId.toHexString,
+      email,
+    };
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    const token = await this.jwt.signAsync(payload, {
+      expiresIn: process.env.JWT_TOKEN_EXPIRES_IN,
+      secret: process.env.JWT_SECRET,
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return {
+      access_token: token,
+    };
   }
 }

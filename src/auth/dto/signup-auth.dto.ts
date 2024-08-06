@@ -7,26 +7,37 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class SignupAuthDto {
   @IsString()
-  @ApiProperty()
+  @ApiProperty({
+    default: 'user',
+  })
   username: string;
 
   @IsEmail()
-  @ApiProperty()
+  @ApiProperty({
+    default: 'email@example.com',
+  })
   email: string;
 
   @IsString()
-  @ApiProperty()
-  hash: string;
+  @ApiProperty({
+    default: 'password',
+  })
+  password: string;
 
   @IsPhoneNumber()
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    default: '+380985052935',
+  })
   phone?: string;
 
   @IsEnum(['Admin', 'Moderator', 'User', 'Guest'])
   @IsOptional()
-  @ApiProperty()
+  @ApiProperty({
+    default: 'User',
+    enum: ['Admin', 'Moderator', 'User', 'Guest'],
+  })
   role?: string;
 }
