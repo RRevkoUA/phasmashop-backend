@@ -8,4 +8,11 @@ import { UpdateUserDto } from './dto';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModule: Model<User>) {}
 
+  findAll() {}
+
+  findUser(username: string) {}
+
+  update(dto: UpdateUserDto, user: User) {}
+
+  delete(user: User) {}
 }

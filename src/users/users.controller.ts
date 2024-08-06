@@ -3,34 +3,46 @@ import {
   Get,
   Patch,
   Delete,
+  UseGuards,
+  Body,
+  Param,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { GetUser } from 'src/auth/decorator/get-user.decorator';
+import { User } from 'src/schemas/users.schema';
+import { JwtGuard } from 'src/auth/guard';
 
 @ApiTags('Users')
+@ApiBearerAuth()
+@UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
   findAll() {
-    //return this.usersService.findAll();
+    return this.usersService.findAll();
   }
 
   @Get('me')
-  findMe() {
-    // return this.usersService.findOne();
+  findMe(@GetUser() user: User) {
+    return this.usersService.findUser(user.username);
+  }
+
+  @Get(':username')
+  findUser(@Param('username') username: string) {
+    return this.usersService.findUser(username);
   }
 
   @Patch('me')
-  updateUser() {
-    //Use UpdateUserDto
-    // return this.userService.update();
+  updateUser(@Body() dto: UpdateUserDto, @GetUser() user: User) {
+    return this.usersService.update(dto, user);
   }
 
   @Delete('me')
-  deleteUser() {
-    //return this.userService.delete();
+  deleteUser(@GetUser() user: User) {
+    return this.usersService.delete(user);
   }
 }
