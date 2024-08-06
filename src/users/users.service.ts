@@ -8,7 +8,23 @@ import { UpdateUserDto } from './dto';
 export class UsersService {
   constructor(@InjectModel(User.name) private userModule: Model<User>) {}
 
-  findAll() {}
+  async findAll() {
+    const usersArr: User[] = [];
+    const cursor = this.userModule.find().cursor();
+    for (
+      let doc = await cursor.next();
+      doc != null;
+      doc = await cursor.next()
+    ) {
+      doc.hash = undefined;
+      usersArr.push(doc);
+      // XXX :: Fuse for no more objects, than 20. Will fix, in pages update
+      if (usersArr.length >= 20) {
+        break;
+      }
+    }
+    return usersArr;
+  }
 
   findUser(username: string) {}
 
