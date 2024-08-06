@@ -1,10 +1,11 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
-import { AuthDto } from './dto';
+import { SigninAuthDto, SignupAuthDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/schemas/users.schema';
 import { Model, Types } from 'mongoose';
+import { isEmail } from 'class-validator';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
     @InjectModel(User.name) private userModule: Model<User>,
   ) {}
 
-  async signup(dto: AuthDto) {
+  async signup(dto: SignupAuthDto) {
     try {
       const token = await argon.hash(dto.password);
       const user = await this.userModule.create({
@@ -29,9 +30,27 @@ export class AuthService {
     }
   }
 
-  async signin(dto: AuthDto) {
-    const user = await this.userModule.findOne({ email: dto.email });
+  async signin(dto: SigninAuthDto) {
+    let user;
 
+    if (isEmail(dto.loginOrEmail)) {
+      user = await this.userModule.findOne({
+        email: dto.loginOrEmail,
+      });
+    } else {
+      user = await this.userModule.findOne({
+        username: dto.loginOrEmail,
+      });
+    }
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    const isCorrectPassword = await argon.verify(user.hash, dto.password);
+
+    if (!isCorrectPassword) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    return this.signToken(user._id, user.email);
   }
 
   async signToken(userId: Types.ObjectId, email: string): Promise<object> {
