@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/schemas/users.schema';
 import { Model } from 'mongoose';
@@ -35,7 +39,18 @@ export class UsersService {
     return user;
   }
 
-  update(dto: UpdateUserDto, user: User) {}
+  async update(dto: UpdateUserDto, user: User) {
+    try {
+      await this.userModule.findOneAndUpdate(user, { ...dto });
+    } catch (err) {
+      if (err.code === 11000) {
+        const res = Object.values(err.keyValue)[0];
+        throw new ForbiddenException(`${res} is already in use`);
+      }
+    }
+  }
 
-  delete(user: User) {}
+  async delete(user: User) {
+    return await this.userModule.findOneAndDelete(user);
+  }
 }
