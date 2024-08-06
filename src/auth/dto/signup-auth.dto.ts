@@ -37,6 +37,7 @@ export class SignupAuthDto {
   @IsOptional()
   @ApiProperty({
     default: 'User',
+    enum: ['Admin', 'Moderator', 'User', 'Guest'],
   })
   role?: string;
 }
