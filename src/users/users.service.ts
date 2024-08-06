@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/schemas/users.schema';
 import { Model } from 'mongoose';
@@ -26,7 +26,14 @@ export class UsersService {
     return usersArr;
   }
 
-  findUser(username: string) {}
+  async findUser(username: string) {
+    const user = await this.userModule.findOne({ username });
+    if (!user) {
+      throw new NotFoundException('User not Found');
+    }
+    user.hash = undefined;
+    return user;
+  }
 
   update(dto: UpdateUserDto, user: User) {}
 
