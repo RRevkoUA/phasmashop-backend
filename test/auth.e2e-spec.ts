@@ -2,6 +2,7 @@ import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { SignupAuthDto } from 'src/auth/dto';
+import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
 import mongoose from 'mongoose';
 
@@ -9,15 +10,16 @@ describe('AuthController E2E Test', () => {
   let app: INestApplication;
   const host = `http://localhost:${process.env.APP_PORT}/`;
   const dto: SignupAuthDto = {
-    email: 'goored@mail.com',
-    password: 'goodpawwssword123',
-    username: 'Usernamgge123',
+    email: faker.internet.email(),
+    password: faker.internet.password(),
+    username: faker.internet.userName(),
+    phone: '+1610' + faker.helpers.fromRegExp('[0-9]{7}'),
   };
 
   beforeAll(async () => {
     await mongoose.connect(process.env.DB_URL);
     const db = mongoose.connection.db;
-    await db.dropCollection('users');
+    await db.dropDatabase();
     mongoose.connection.close();
 
     const moduleRef: TestingModule = await Test.createTestingModule({
@@ -58,7 +60,7 @@ describe('AuthController E2E Test', () => {
         .withBody({
           email: dto.email,
           password: dto.password,
-          username: 'NewUser',
+          username: faker.internet.userName(),
         })
         .expectStatus(HttpStatus.FORBIDDEN);
     });
@@ -69,7 +71,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          email: 'email@email.email',
+          email: faker.internet.email(),
           password: dto.password,
           username: dto.username,
         })
@@ -83,7 +85,7 @@ describe('AuthController E2E Test', () => {
         .post(path)
         .withBody({
           ...dto,
-          role: 'UNKNOWN',
+          role: faker.helpers.fromRegExp('a-z{4}'),
         })
         .expectStatus(HttpStatus.BAD_REQUEST);
     });
@@ -95,7 +97,7 @@ describe('AuthController E2E Test', () => {
         .post(path)
         .withBody({
           ...dto,
-          phone: '+3806669991112',
+          phone: '+380' + faker.helpers.fromRegExp('[0-9]{8}'),
         })
         .expectStatus(HttpStatus.BAD_REQUEST);
     });
@@ -105,7 +107,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          email: 'notaEmail',
+          email: faker.helpers.fromRegExp('[a-z]{4}'),
           password: dto.password,
           username: dto.username,
         })
@@ -150,7 +152,7 @@ describe('AuthController E2E Test', () => {
         .post(path)
         .withBody({
           usernameOrEmail: dto.username,
-          password: 'rrrrrrrrrrrr',
+          password: faker.helpers.fromRegExp('[a-z]{8}'),
         })
         .expectStatus(HttpStatus.FORBIDDEN);
     });
@@ -161,7 +163,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          usernameOrEmail: '24124124',
+          usernameOrEmail: faker.helpers.fromRegExp('[a-z]{4}'),
           password: dto.password,
         })
         .expectStatus(HttpStatus.FORBIDDEN);
