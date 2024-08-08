@@ -13,7 +13,7 @@ describe('AuthController E2E Test', () => {
     email: faker.internet.email(),
     password: faker.internet.password(),
     username: faker.internet.userName(),
-    phone: '+1610' + faker.helpers.fromRegExp('[0-9]{7}'),
+    phone: '+380952534324',
   };
 
   beforeAll(async () => {
