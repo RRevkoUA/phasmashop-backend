@@ -8,12 +8,12 @@ import mongoose from 'mongoose';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
+  let newPassword;
   const host = `http://localhost:${process.env.APP_PORT}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
     password: faker.internet.password(),
     username: faker.internet.userName(),
-    phone: '+1610' + faker.helpers.fromRegExp('[0-9]{7}'),
   };
 
   beforeAll(async () => {
@@ -45,21 +45,92 @@ describe('AuthController E2E Test', () => {
     const uri = 'users/';
     const path = uri + 'me';
     it('Should not get user UNAUTHORIZED', () => {
+      return pactum.spec().get(path).expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('Should not patch user UNAUTHORIZED', () => {
+      return pactum.spec().patch(path).expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('Should not delete user UNAUTHORIZED', () => {
+      return pactum.spec().delete(path).expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
+    it('Should signup', () => {
+      return pactum
+        .spec()
+        .post('signup')
+        .withBody(dto)
+        .stores('userAT', 'access_token')
+        .expectStatus(HttpStatus.CREATED);
+    });
+
+    it('Should get new user', () => {
       return pactum
         .spec()
         .get(path)
-        .withBody(dto)
-        .expectStatus(HttpStatus.UNAUTHORIZED);
+        .withHeaders({
+          Authorization: 'Bearer $S{userAT}',
+        })
+        .expectStatus(HttpStatus.OK);
     });
 
-    it.todo('Should not patch user UNAUTHORIZED');
-    it.todo('Should not delete user UNAUTHORIZED');
+    it('Should patch user`s phone', () => {
+      return pactum
+        .spec()
+        .patch(path)
+        .withHeaders({
+          Authorization: 'Bearer $S{userAT}',
+        })
+        .withBody({
+          phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
+        })
+        .expectStatus(HttpStatus.OK);
+    });
 
-    it.todo('Should signup new user, and get him');
-    it.todo('Should patch user`s phone');
-    it.todo('Should patch user`s password');
-    it.todo('Should signin to user, and get him by new password');
-    it.todo('Should delete user');
-    it.todo('Should not get user UNAUTHORIZED');
+    it('Should patch user`s password', () => {
+      newPassword = faker.internet.password();
+      return pactum
+        .spec()
+        .patch(path)
+        .withHeaders({
+          Authorization: 'Bearer $S{userAT}',
+        })
+        .withBody({
+          password: newPassword,
+        })
+        .expectStatus(HttpStatus.OK);
+    });
+
+    it('Should signin to user, and get him by new password', () => {
+      return pactum
+        .spec()
+        .post('signin')
+        .withBody({
+          usernameOrEmail: dto.username,
+          password: newPassword,
+        })
+        .expectStatus(HttpStatus.OK);
+    });
+
+    it('Should delete user', () => {
+      return pactum
+        .spec()
+        .delete(path)
+        .withHeaders({
+          Authorization: 'Bearer $S{userAT}',
+        })
+        .expectStatus(HttpStatus.OK);
+    });
+
+    it('Should not get user UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .get(path)
+        .withHeaders({
+          Authorization: 'Bearer $S{userAT}',
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
   });
 });
