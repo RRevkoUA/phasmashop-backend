@@ -20,14 +20,21 @@ describe('AuthController E2E Test', () => {
         whitelist: true,
       }),
     );
-
+    await mongoose.connect(process.env.DB_URL);
     await app.init();
     await app.listen(process.env.APP_PORT);
-    mongoose.connection.dropCollection(process.env.DB_URL);
+
+    // for (const collection of collections) {
+    //   await db.dropCollection(collection.name);
+    // }
     pactum.request.setBaseUrl(host);
   });
 
   afterAll(async () => {
+    const db = mongoose.connection.db;
+
+    await db.dropDatabase();
+    mongoose.connection.close();
     app.close();
   });
   describe('auth', () => {
