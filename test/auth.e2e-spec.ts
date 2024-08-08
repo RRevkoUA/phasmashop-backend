@@ -15,6 +15,11 @@ describe('AuthController E2E Test', () => {
   };
 
   beforeAll(async () => {
+    await mongoose.connect(process.env.DB_URL);
+    const db = mongoose.connection.db;
+    await db.dropCollection('users');
+    mongoose.connection.close();
+
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -31,11 +36,6 @@ describe('AuthController E2E Test', () => {
   });
 
   afterAll(async () => {
-    await mongoose.connect(process.env.DB_URL);
-    const db = mongoose.connection.db;
-    await db.dropDatabase();
-    mongoose.connection.close();
-
     app.close();
   });
 
