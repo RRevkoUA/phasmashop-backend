@@ -135,10 +135,21 @@ describe('AuthController E2E Test', () => {
     });
   });
   describe('users e2e testing', () => {
+    let userAt;
+
+    it('Should not get users UNAUTHORIZED', async () => {
+      return pactum
+        .spec()
+        .get(uri)
+        .withHeaders({
+          Authorization: `Bearer $S{userAt}`,
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
     it('Should get users', async () => {
-      let userAt;
       try {
-        userAt = await app.get(UserSeed).seed(25);
+        userAt = await app.get(UserSeed).seed(20);
         userAt = userAt.access_token;
       } catch (err) {
         console.error(err);
@@ -149,7 +160,30 @@ describe('AuthController E2E Test', () => {
         .withHeaders({
           Authorization: `Bearer ${userAt}`,
         })
+        .stores('username', '[0].username')
+        .expectJsonLength(20)
         .expectStatus(HttpStatus.OK);
+    });
+
+    it('Should get user by username', async () => {
+      return pactum
+        .spec()
+        .get(uri + '$S{username}')
+        .withHeaders({
+          Authorization: `Bearer ${userAt}`,
+        })
+        .expectBodyContains('$S{username}')
+        .expectStatus(HttpStatus.OK);
+    });
+
+    it('Should not get user, using invalid username', async () => {
+      return pactum
+        .spec()
+        .get(uri + faker.internet.userName())
+        .withHeaders({
+          Authorization: `Bearer ${userAt}`,
+        })
+        .expectStatus(HttpStatus.NOT_FOUND);
     });
   });
 });
