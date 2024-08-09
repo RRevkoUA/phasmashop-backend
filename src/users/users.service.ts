@@ -42,17 +42,17 @@ export class UsersService {
 
   async update(dto: UpdateUserDto, user: User) {
     try {
-      let hash;
-      if (dto.password) {
-        hash = await argon.hash(dto.password);
-        delete dto.password;
-        await this.userModule.findOneAndUpdate(user, {
-          hash: hash,
-        });
-      }
-      await this.userModule.findOneAndUpdate(user, {
+      const updateData = {
+        hash: undefined,
         ...dto,
-      });
+      };
+
+      if (dto.password) {
+        const hash = await argon.hash(dto.password);
+        updateData.hash = hash;
+      }
+
+      await this.userModule.findOneAndUpdate(user, updateData);
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
