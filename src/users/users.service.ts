@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/schemas/users.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
+import * as argon from 'argon2';
 
 @Injectable()
 export class UsersService {
@@ -41,7 +42,17 @@ export class UsersService {
 
   async update(dto: UpdateUserDto, user: User) {
     try {
-      await this.userModule.findOneAndUpdate(user, { ...dto });
+      const updateData = {
+        hash: undefined,
+        ...dto,
+      };
+
+      if (dto.password) {
+        const hash = await argon.hash(dto.password);
+        updateData.hash = hash;
+      }
+
+      await this.userModule.findOneAndUpdate(user, updateData);
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
