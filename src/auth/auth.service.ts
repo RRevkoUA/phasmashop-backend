@@ -1,0 +1,72 @@
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as argon from 'argon2';
+import { SigninAuthDto, SignupAuthDto } from './dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { User } from 'src/schemas/users.schema';
+import { Model, Types } from 'mongoose';
+import { isEmail } from 'class-validator';
+
+@Injectable()
+export class AuthService {
+  constructor(
+    private jwt: JwtService,
+    @InjectModel(User.name) private userModule: Model<User>,
+  ) {}
+
+  async signup(dto: SignupAuthDto) {
+    try {
+      const token = await argon.hash(dto.password);
+      const user = await this.userModule.create({
+        ...dto,
+        hash: token,
+      });
+      return this.signToken(user._id, user.email);
+    } catch (err) {
+      if (err.code === 11000) {
+        const res = Object.values(err.keyValue)[0];
+        throw new ForbiddenException(`${res} is already in use`);
+      }
+      throw err;
+    }
+  }
+
+  async signin(dto: SigninAuthDto) {
+    let user;
+
+    if (isEmail(dto.login)) {
+      user = await this.userModule.findOne({
+        email: dto.login,
+      });
+    } else {
+      user = await this.userModule.findOne({
+        username: dto.login,
+      });
+    }
+    if (!user) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    const isCorrectPassword = await argon.verify(user.hash, dto.password);
+
+    if (!isCorrectPassword) {
+      throw new ForbiddenException('Credentials incorrect');
+    }
+    return this.signToken(user._id, user.email);
+  }
+
+  async signToken(userId: Types.ObjectId, email: string): Promise<object> {
+    const payload = {
+      sub: userId.toHexString,
+      email,
+    };
+
+    const token = await this.jwt.signAsync(payload, {
+      expiresIn: process.env.JWT_TOKEN_EXPIRES_IN,
+      secret: process.env.JWT_SECRET,
+    });
+
+    return {
+      access_token: token,
+    };
+  }
+}
