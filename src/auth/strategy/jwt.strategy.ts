@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
 import { PassportStrategy } from '@nestjs/passport';
@@ -22,6 +22,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.userModule.findOne({
       email: payload.email,
     });
+    if (!user) {
+      throw new UnauthorizedException(
+        'Authentication failed. Please provide a valid token.',
+      );
+    }
     user.hash = undefined;
     return user;
   }
