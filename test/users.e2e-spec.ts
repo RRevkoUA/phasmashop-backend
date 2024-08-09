@@ -5,10 +5,12 @@ import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
 import mongoose from 'mongoose';
+import { UserSeed } from 'src/seeders/user.seeder';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
   let newPassword;
+  const uri = 'users/';
   const host = `http://localhost:${process.env.APP_PORT}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
@@ -42,7 +44,6 @@ describe('AuthController E2E Test', () => {
   });
 
   describe('users/me e2e testing', () => {
-    const uri = 'users/';
     const path = uri + 'me';
     it('Should not get user UNAUTHORIZED', () => {
       return pactum.spec().get(path).expectStatus(HttpStatus.UNAUTHORIZED);
@@ -131,6 +132,24 @@ describe('AuthController E2E Test', () => {
           Authorization: 'Bearer $S{userAT}',
         })
         .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+  });
+  describe('users e2e testing', () => {
+    it('Should get users', async () => {
+      let userAt;
+      try {
+        userAt = await app.get(UserSeed).seed(25);
+        userAt = userAt.access_token;
+      } catch (err) {
+        console.error(err);
+      }
+      return pactum
+        .spec()
+        .get(uri)
+        .withHeaders({
+          Authorization: `Bearer ${userAt}`,
+        })
+        .expectStatus(HttpStatus.OK);
     });
   });
 });
