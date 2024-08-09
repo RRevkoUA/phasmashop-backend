@@ -24,7 +24,8 @@ export class AuthService {
       return this.signToken(user._id, user.email);
     } catch (err) {
       if (err.code === 11000) {
-        throw new ForbiddenException('this username or email already in use');
+        const res = Object.values(err.keyValue)[0];
+        throw new ForbiddenException(`${res} is already in use`);
       }
       throw err;
     }
@@ -33,13 +34,13 @@ export class AuthService {
   async signin(dto: SigninAuthDto) {
     let user;
 
-    if (isEmail(dto.usernameOrEmail)) {
+    if (isEmail(dto.login)) {
       user = await this.userModule.findOne({
-        email: dto.usernameOrEmail,
+        email: dto.login,
       });
     } else {
       user = await this.userModule.findOne({
-        username: dto.usernameOrEmail,
+        username: dto.login,
       });
     }
     if (!user) {

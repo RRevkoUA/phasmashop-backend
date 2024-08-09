@@ -8,12 +8,13 @@ import mongoose from 'mongoose';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
-  const host = `http://localhost:${process.env.APP_PORT}/`;
+  const port = Number.parseInt(process.env.APP_PORT);
+  const host = `http://localhost:${port}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
     password: faker.internet.password(),
     username: faker.internet.userName(),
-    phone: '+380952534324',
+    phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
   };
 
   beforeAll(async () => {
@@ -33,7 +34,7 @@ describe('AuthController E2E Test', () => {
       }),
     );
     await app.init();
-    await app.listen(process.env.APP_PORT);
+    await app.listen(port);
     pactum.request.setBaseUrl(host);
   });
 
@@ -127,7 +128,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          usernameOrEmail: dto.email,
+          login: dto.email,
           password: dto.password,
         })
         .expectStatus(HttpStatus.OK);
@@ -139,7 +140,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          usernameOrEmail: dto.username,
+          login: dto.username,
           password: dto.password,
         })
         .expectStatus(HttpStatus.OK);
@@ -151,7 +152,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          usernameOrEmail: dto.username,
+          login: dto.username,
           password: faker.helpers.fromRegExp('[a-z]{8}'),
         })
         .expectStatus(HttpStatus.FORBIDDEN);
@@ -163,7 +164,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post(path)
         .withBody({
-          usernameOrEmail: faker.helpers.fromRegExp('[a-z]{4}'),
+          login: faker.helpers.fromRegExp('[a-z]{4}'),
           password: dto.password,
         })
         .expectStatus(HttpStatus.FORBIDDEN);

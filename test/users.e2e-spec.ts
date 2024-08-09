@@ -10,8 +10,9 @@ import { UserSeed } from 'src/seeders/user.seeder';
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
   let newPassword;
+  const port = Number.parseInt(process.env.APP_PORT) + 10;
   const uri = 'users/';
-  const host = `http://localhost:${process.env.APP_PORT}/`;
+  const host = `http://localhost:${port}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
     password: faker.internet.password(),
@@ -35,7 +36,7 @@ describe('AuthController E2E Test', () => {
       }),
     );
     await app.init();
-    await app.listen(process.env.APP_PORT);
+    await app.listen(port);
     pactum.request.setBaseUrl(host);
   });
 
@@ -108,7 +109,7 @@ describe('AuthController E2E Test', () => {
         .spec()
         .post('signin')
         .withBody({
-          usernameOrEmail: dto.username,
+          login: dto.username,
           password: newPassword,
         })
         .expectStatus(HttpStatus.OK);
