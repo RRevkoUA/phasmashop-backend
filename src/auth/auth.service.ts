@@ -33,13 +33,13 @@ export class AuthService {
   async signin(dto: SigninAuthDto) {
     let user;
 
-    if (isEmail(dto.usernameOrEmail)) {
+    if (isEmail(dto.login)) {
       user = await this.userModule.findOne({
-        email: dto.usernameOrEmail,
+        email: dto.login,
       });
     } else {
       user = await this.userModule.findOne({
-        username: dto.usernameOrEmail,
+        username: dto.login,
       });
     }
     if (!user) {

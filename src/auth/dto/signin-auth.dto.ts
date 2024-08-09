@@ -5,8 +5,9 @@ export class SigninAuthDto {
   @IsString()
   @ApiProperty({
     default: 'usernameOrEmail',
+    description: 'may be username, or email',
   })
-  usernameOrEmail: string;
+  login: string;
 
   @IsString()
   @ApiProperty({
