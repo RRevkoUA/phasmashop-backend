@@ -21,7 +21,9 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
-
+  app.enableCors({
+    origin: process.env.FRONTEND_API_URL,
+  });
   await app.listen(process.env.APP_PORT);
 }
 bootstrap();
