@@ -1,0 +1,11 @@
+{
+  "watch": ["src"],
+  "ignore": [
+    "src/**/*.spec.ts",
+    "src/**/*.test.ts",
+    "public/*",
+    "node_modules/*",
+    "dist"
+  ],
+  "ext": "ts,js,json,hbs"
+}

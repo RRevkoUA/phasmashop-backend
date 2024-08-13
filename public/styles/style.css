@@ -1048,12 +1048,12 @@ html {
   margin-inline-start: calc(var(--border-btn) * -1);
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
-}
-
 .mr-4 {
   margin-right: 1rem;
+}
+
+.mt-2 {
+  margin-top: 0.5rem;
 }
 
 .bg-base-200 {
@@ -1078,6 +1078,11 @@ html {
   padding: 1rem;
 }
 
+.text-2xl {
+  font-size: 1.5rem;
+  line-height: 2rem;
+}
+
 .text-4xl {
   font-size: 2.25rem;
   line-height: 2.5rem;
@@ -1086,11 +1091,6 @@ html {
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
-}
-
-.text-2xl {
-  font-size: 1.5rem;
-  line-height: 2rem;
 }
 
 .font-bold {
