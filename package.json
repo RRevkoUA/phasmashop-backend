@@ -6,6 +6,9 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "make:css": "tailwindcss -i ./src/styles/tailwind.css -o ./public/styles/style.css",
+    "build:css": "npm run make:css --minify",
+    "watch:css": "npm run make:css --watch",
     "db:dev:rm": "docker compose rm dev-db -s -f -v",
     "db:dev:up": "docker compose up dev-db -d",
     "db:dev:restart": "npm run db:dev:rm && npm run db:dev:up && sleep 1",
@@ -37,15 +40,19 @@
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.4.0",
     "argon2": "^0.40.3",
+    "autoprefixer": "^10.4.20",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "daisyui": "^4.12.10",
     "hbs": "^4.2.0",
     "mongoose": "^8.5.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "postcss": "^8.4.41",
     "reflect-metadata": "^0.2.0",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "tailwindcss": "^3.4.9"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.4.1",
