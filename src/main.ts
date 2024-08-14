@@ -7,20 +7,25 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.setGlobalPrefix(process.env.APP_GLOBAL_PREFIX);
   const config = new DocumentBuilder()
     .setTitle('Phasmashop swagger api')
     .setDescription('pet project api testing, and representation')
     .setVersion('1.0')
-    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('swagger', app, document);
+  SwaggerModule.setup(process.env.APP_SWAGGER_PATH, app, document);
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
     }),
   );
+
+  app.enableCors({
+    origin: process.env.APP_ORIGIN,
+    credentials: true,
+  });
 
   await app.listen(process.env.APP_PORT);
 }
