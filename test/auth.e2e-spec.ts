@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
   const port = Number.parseInt(process.env.APP_PORT);
-  const host = `http://localhost:${port}/`;
+  const host = `http://localhost:${port}/${process.env.APP_GLOBAL_PREFIX}`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
     password: faker.internet.password(),
