@@ -8,10 +8,10 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SigninAuthDto, SignupAuthDto } from './dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { Tokens } from './types';
 import { User } from 'src/schemas/users.schema';
-import { ApiRefreshAuth, GetUser } from './decorator';
+import { ApiAccessAuth, ApiRefreshAuth, GetUser } from './decorator';
 import { JwtGuard, JwtRefreshGuard } from './guard';
 @ApiTags('Auth')
 @Controller('')
@@ -31,7 +31,7 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiBearerAuth()
+  @ApiAccessAuth()
   @UseGuards(JwtGuard)
   @Post('logout')
   logout(@GetUser() user: User) {
