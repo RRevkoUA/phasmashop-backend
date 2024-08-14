@@ -9,13 +9,13 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/schemas/users.schema';
 import { JwtGuard } from 'src/auth/guard';
-import { GetUser } from 'src/auth/decorator';
+import { ApiAccessAuth, GetUser } from 'src/auth/decorator';
 
 @ApiTags('Users')
-@ApiBearerAuth()
+@ApiAccessAuth()
 @UseGuards(JwtGuard)
 @Controller('users')
 export class UsersController {

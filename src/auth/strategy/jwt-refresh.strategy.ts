@@ -5,30 +5,44 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/users.schema';
+import { Request } from 'express';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(
     config: ConfigService,
     @InjectModel(User.name) private userModule: Model<User>,
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: { sub: number; email: string }) {
+  async validate(req: Request, payload: { sub: number; email: string }) {
     const user = await this.userModule.findOne({
       email: payload.email,
     });
-    console.log(user);
-    if (!user || !user.hashedRt) {
+    if (!user) {
       throw new UnauthorizedException(
         'Authentication failed. Please provide a valid token.',
       );
     }
     user.hash = undefined;
-    return user;
+    user.hashedRt = undefined;
+
+    const refresh_token = req
+      .get('Authorization')
+      .replace('Bearer ', '')
+      .trim();
+
+    return {
+      user,
+      refresh_token,
+    };
   }
 }
