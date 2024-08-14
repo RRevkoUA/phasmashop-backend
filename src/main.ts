@@ -12,6 +12,14 @@ async function bootstrap() {
     .setTitle('Phasmashop swagger api')
     .setDescription('pet project api testing, and representation')
     .setVersion('1.0')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'refresh-token',
+    )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup(process.env.APP_SWAGGER_PATH, app, document);
