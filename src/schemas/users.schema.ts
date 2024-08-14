@@ -12,6 +12,9 @@ export class User {
   @Prop({ required: true })
   hash: string;
 
+  @Prop({ required: false })
+  hashedRt?: string;
+
   @Prop()
   phone: string;
 
