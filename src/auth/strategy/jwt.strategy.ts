@@ -22,7 +22,6 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.userModule.findOne({
       email: payload.email,
     });
-    console.log(user);
     if (!user || !user.hashedRt) {
       throw new UnauthorizedException(
         'Authentication failed. Please provide a valid token.',
