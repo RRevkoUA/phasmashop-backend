@@ -4,7 +4,7 @@ import { AuthController } from './auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/schemas/users.schema';
-import { JwtStrategy, JwtRefreshStrategy, JwtCookieStrategy } from './strategy';
+import { JwtStrategy, JwtRefreshStrategy } from './strategy';
 import { UserSeed } from 'src/seeders/user.seeder';
 
 @Module({
@@ -18,12 +18,6 @@ import { UserSeed } from 'src/seeders/user.seeder';
     ]),
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    JwtStrategy,
-    JwtRefreshStrategy,
-    JwtCookieStrategy,
-    UserSeed,
-  ],
+  providers: [AuthService, JwtStrategy, JwtRefreshStrategy, UserSeed],
 })
 export class AuthModule {}

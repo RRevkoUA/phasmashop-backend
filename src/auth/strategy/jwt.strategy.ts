@@ -13,15 +13,24 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     @InjectModel(User.name) private userModule: Model<User>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => {
+          if (req && req.cookies) {
+            return req.cookies['access_token'];
+          }
+          return null;
+        },
+      ]),
       secretOrKey: process.env.JWT_SECRET,
     });
   }
 
   async validate(payload: { sub: number; email: string }) {
+    console.log(payload);
     const user = await this.userModule.findOne({
       email: payload.email,
     });
+
     if (!user || !user.hashedRt) {
       throw new UnauthorizedException(
         'Authentication failed. Please provide a valid token.',

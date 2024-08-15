@@ -5,6 +5,9 @@ export const SetCookie = createParamDecorator(
     const response = ctx.switchToHttp().getResponse();
 
     const setCookie = (name: string, value: string, options?: any) => {
+      if (!options) {
+        options = { httpOnly: true, secure: true };
+      }
       response.cookie(name, value, options);
     };
 
