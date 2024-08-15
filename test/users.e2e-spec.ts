@@ -6,10 +6,13 @@ import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
 import mongoose from 'mongoose';
 import { UserSeed } from 'src/seeders/user.seeder';
+import * as cookieParser from 'cookie-parser';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
   let newPassword;
+  let cookie;
+
   const port = Number.parseInt(process.env.APP_PORT) + 10;
   const uri = 'users/';
   const host = `http://localhost:${port}/`;
@@ -28,8 +31,8 @@ describe('AuthController E2E Test', () => {
     const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
-
     app = moduleRef.createNestApplication();
+    app.use(cookieParser());
     app.useGlobalPipes(
       new ValidationPipe({
         whitelist: true,
@@ -58,22 +61,19 @@ describe('AuthController E2E Test', () => {
       return pactum.spec().delete(path).expectStatus(HttpStatus.UNAUTHORIZED);
     });
 
-    it('Should signup', () => {
-      return pactum
+    it('Should get new user', async () => {
+      cookie = await pactum
         .spec()
         .post('signup')
         .withBody(dto)
-        .stores('userAT', 'access_token')
-        .expectStatus(HttpStatus.CREATED);
-    });
+        .returns((ctx) => {
+          return ctx.res.headers['set-cookie'];
+        });
 
-    it('Should get new user', () => {
       return pactum
         .spec()
         .get(path)
-        .withHeaders({
-          Authorization: 'Bearer $S{userAT}',
-        })
+        .withCookies(cookie[0])
         .expectStatus(HttpStatus.OK);
     });
 
@@ -81,9 +81,7 @@ describe('AuthController E2E Test', () => {
       return pactum
         .spec()
         .patch(path)
-        .withHeaders({
-          Authorization: 'Bearer $S{userAT}',
-        })
+        .withCookies(cookie[0])
         .withBody({
           phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
         })
@@ -95,9 +93,7 @@ describe('AuthController E2E Test', () => {
       return pactum
         .spec()
         .patch(path)
-        .withHeaders({
-          Authorization: 'Bearer $S{userAT}',
-        })
+        .withCookies(cookie[0])
         .withBody({
           password: newPassword,
         })
@@ -119,9 +115,7 @@ describe('AuthController E2E Test', () => {
       return pactum
         .spec()
         .delete(path)
-        .withHeaders({
-          Authorization: 'Bearer $S{userAT}',
-        })
+        .withCookies(cookie[0])
         .expectStatus(HttpStatus.OK);
     });
 
@@ -129,38 +123,30 @@ describe('AuthController E2E Test', () => {
       return pactum
         .spec()
         .get(path)
-        .withHeaders({
-          Authorization: 'Bearer $S{userAT}',
-        })
+        .withCookies(cookie[0])
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
   });
   describe('users e2e testing', () => {
-    let userAt;
-
     it('Should not get users UNAUTHORIZED', async () => {
       return pactum
         .spec()
         .get(uri)
-        .withHeaders({
-          Authorization: `Bearer $S{userAt}`,
-        })
+        .withCookies(cookie[0])
+
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
 
     it('Should get users', async () => {
       try {
-        userAt = await app.get(UserSeed).seed(20);
-        userAt = userAt.access_token;
+        cookie = await app.get(UserSeed).seed(20);
       } catch (err) {
         console.error(err);
       }
       return pactum
         .spec()
         .get(uri)
-        .withHeaders({
-          Authorization: `Bearer ${userAt}`,
-        })
+        .withCookies('access_token', cookie.access_token)
         .stores('username', '[0].username')
         .expectJsonLength(20)
         .expectStatus(HttpStatus.OK);
@@ -170,9 +156,8 @@ describe('AuthController E2E Test', () => {
       return pactum
         .spec()
         .get(uri + '$S{username}')
-        .withHeaders({
-          Authorization: `Bearer ${userAt}`,
-        })
+        .withCookies('access_token', cookie.access_token)
+
         .expectBodyContains('$S{username}')
         .expectStatus(HttpStatus.OK);
     });
@@ -181,9 +166,7 @@ describe('AuthController E2E Test', () => {
       return pactum
         .spec()
         .get(uri + faker.internet.userName())
-        .withHeaders({
-          Authorization: `Bearer ${userAt}`,
-        })
+        .withCookies('access_token', cookie.access_token)
         .expectStatus(HttpStatus.NOT_FOUND);
     });
   });

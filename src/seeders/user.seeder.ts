@@ -27,10 +27,10 @@ export class UserSeed {
         ]),
         phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
       };
-      const token = await this.authService.signup(dto);
+      const tokens = await this.authService.signup(dto);
       amount--;
       if (!amount) {
-        return token;
+        return tokens;
       }
     }
     return '';
