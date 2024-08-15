@@ -11,7 +11,7 @@ import { SigninAuthDto, SignupAuthDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Tokens } from './types';
 import { User } from 'src/schemas/users.schema';
-import { ApiAccessAuth, ApiRefreshAuth, GetUser } from './decorator';
+import { ApiAccessAuth, ApiRefreshAuth, GetUser, SetCookie } from './decorator';
 import { JwtGuard, JwtRefreshGuard } from './guard';
 @ApiTags('Auth')
 @Controller('')
@@ -20,14 +20,27 @@ export class AuthController {
 
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  signup(@Body() dto: SignupAuthDto): Promise<Tokens> {
-    return this.authService.signup(dto);
+  async signup(
+    @Body() dto: SignupAuthDto,
+    @SetCookie() set_cookie,
+  ): Promise<Tokens> {
+    const tokens: Tokens = await this.authService.signup(dto);
+
+    set_cookie('access_token', tokens.access_token);
+    set_cookie('refresh_token', tokens.refresh_token);
+
+    return tokens;
   }
 
   @HttpCode(HttpStatus.OK)
   @Post('signin')
-  signin(@Body() dto: SigninAuthDto) {
-    return this.authService.signin(dto);
+  async signin(@Body() dto: SigninAuthDto, @SetCookie() set_cookie) {
+    const tokens = await this.authService.signin(dto);
+
+    set_cookie('access_token', tokens.access_token);
+    set_cookie('refresh_token', tokens.refresh_token);
+
+    return tokens;
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
@@ -42,7 +55,15 @@ export class AuthController {
   @ApiRefreshAuth()
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
-  refresh(@GetUser() user: User) {
-    return this.authService.refreshTokens(user['user'], user['refresh_token']);
+  async refresh(@GetUser() user: User, @SetCookie() set_cookie) {
+    const tokens: Tokens = await this.authService.refreshTokens(
+      user['user'],
+      user['refresh_token'],
+    );
+
+    set_cookie('access_token', tokens.access_token);
+    set_cookie('refresh_token', tokens.refresh_token);
+
+    return tokens;
   }
 }

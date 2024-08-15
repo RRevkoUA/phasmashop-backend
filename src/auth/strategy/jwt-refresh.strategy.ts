@@ -17,7 +17,14 @@ export class JwtRefreshStrategy extends PassportStrategy(
     @InjectModel(User.name) private userModule: Model<User>,
   ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (req) => {
+          if (req && req.cookies) {
+            return req.cookies['refresh_token'];
+          }
+          return null;
+        },
+      ]),
       secretOrKey: process.env.JWT_REFRESH_SECRET,
       passReqToCallback: true,
     });
@@ -27,7 +34,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     const user = await this.userModule.findOne({
       email: payload.email,
     });
-    if (!user) {
+    if (!user || !user.hashedRt) {
       throw new UnauthorizedException(
         'Authentication failed. Please provide a valid token.',
       );
@@ -35,10 +42,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     user.hash = undefined;
     user.hashedRt = undefined;
 
-    const refresh_token = req
-      .get('Authorization')
-      .replace('Bearer ', '')
-      .trim();
+    const refresh_token = req.cookies['refresh_token'];
 
     return {
       user,
