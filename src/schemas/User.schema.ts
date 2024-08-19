@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { Image } from './Image.schema';
 
 @Schema({ timestamps: true })
 export class User {
@@ -21,8 +22,8 @@ export class User {
   @Prop({ enum: ['Admin', 'Moderator', 'User', 'Guest'], default: 'Guest' })
   role: string;
 
-  @Prop({ required: false })
-  photoId?: Types.ObjectId;
+  @Prop({ type: Types.ObjectId, ref: 'Image' })
+  avatar?: Image;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
