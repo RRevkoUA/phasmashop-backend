@@ -5,13 +5,17 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/schemas/User.schema';
+import { Image } from 'src/schemas/Image.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
 import * as argon from 'argon2';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModule: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModule: Model<User>,
+    @InjectModel(Image.name) private imageModule: Model<Image>,
+  ) {}
 
   async findAll() {
     const usersArr: User[] = [];
@@ -65,5 +69,14 @@ export class UsersService {
 
   async delete(user: User) {
     return await this.userModule.findOneAndDelete(user);
+  }
+
+  async uploadAvatar(user: User, file: Express.Multer.File) {
+    console.log('file: ', file);
+    const image = await this.imageModule.create({
+      filename: file.filename,
+      author: user,
+    });
+    return await this.userModule.findOneAndUpdate(user, { avatar: image });
   }
 }

@@ -6,13 +6,18 @@ import {
   UseGuards,
   Body,
   Param,
+  UseInterceptors,
+  Post,
+  UploadedFile,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/schemas/User.schema';
 import { JwtGuard } from 'src/auth/guard';
 import { ApiAccessAuth, GetUser } from 'src/auth/decorator';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { imageStorage } from 'src/helpers/image-storage.helper';
 
 @ApiTags('Users')
 @ApiAccessAuth()
@@ -44,5 +49,30 @@ export class UsersController {
   @Delete('me')
   deleteUser(@GetUser() user: User) {
     return this.usersService.delete(user);
+  }
+
+  @Post('me/avatar')
+  @UseInterceptors(FileInterceptor('file', imageStorage))
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        comment: { type: 'string' },
+        outletId: { type: 'integer' },
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  uploadAvatar(
+    @GetUser() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    for (const key in file) {
+      console.log(key, file[key]);
+    }
+    return this.usersService.uploadAvatar(user, file);
   }
 }
