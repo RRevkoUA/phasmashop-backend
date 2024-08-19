@@ -72,7 +72,6 @@ export class UsersService {
   }
 
   async uploadAvatar(user: User, file: Express.Multer.File) {
-    console.log('file: ', file);
     const image = await this.imageModule.create({
       filename: file.filename,
       author: user,

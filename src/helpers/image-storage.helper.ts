@@ -16,7 +16,6 @@ export const imageStorage = {
   storage: diskStorage({
     destination: `${process.cwd()}/images`,
     filename: (req, file, cb) => {
-      console.log('process.cwd(): ', process.cwd());
       const extension = file.originalname.split('.').pop();
       const filename = `${uuidv4()}.${extension}`;
       cb(null, filename);

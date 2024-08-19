@@ -70,9 +70,6 @@ export class UsersController {
     @GetUser() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    for (const key in file) {
-      console.log(key, file[key]);
-    }
     return this.usersService.uploadAvatar(user, file);
   }
 }
