@@ -22,6 +22,7 @@ export class UsersService {
       doc = await cursor.next()
     ) {
       doc.hash = undefined;
+      doc.hashedRt = undefined;
       usersArr.push(doc);
       // XXX :: Fuse for no more objects, than 20. Will fix, in pages update
       if (usersArr.length >= 20) {
@@ -37,6 +38,7 @@ export class UsersService {
       throw new NotFoundException('User not Found');
     }
     user.hash = undefined;
+    user.hashedRt = undefined;
     return user;
   }
 
