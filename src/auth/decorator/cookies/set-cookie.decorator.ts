@@ -6,7 +6,11 @@ export const SetCookie = createParamDecorator(
 
     const setCookie = (name: string, value: string, options?: any) => {
       if (!options) {
-        options = { httpOnly: true, secure: true };
+        options = {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'Lax',
+        };
       }
       response.cookie(name, value, options);
     };
