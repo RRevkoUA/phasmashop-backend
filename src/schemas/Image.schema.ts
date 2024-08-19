@@ -5,7 +5,7 @@ import { Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class Image {
   @Prop({ required: true })
-  path: string;
+  filename: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
   author?: User;
