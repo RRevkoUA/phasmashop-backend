@@ -68,7 +68,6 @@ export class AuthService {
     if (!userObj) {
       throw new ForbiddenException('Invalid user');
     }
-    console.log(userObj.hashedRt);
     const rtMaches = await argon.verify(userObj.hashedRt, refresh_token);
     if (!rtMaches) {
       throw new ForbiddenException('Invalid refresh token');
