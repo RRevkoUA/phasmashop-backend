@@ -5,9 +5,13 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Model } from 'mongoose';
 import { User } from 'src/schemas/users.schema';
+import { Request } from 'express';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(
     config: ConfigService,
     @InjectModel(User.name) private userModule: Model<User>,
@@ -16,21 +20,20 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req) => {
           if (req && req.cookies) {
-            console.log(req.cookies);
-            return req.cookies['access_token'];
+            return req.cookies['refresh_token'];
           }
           return null;
         },
       ]),
-      secretOrKey: process.env.JWT_SECRET,
+      secretOrKey: process.env.JWT_REFRESH_SECRET,
+      passReqToCallback: true,
     });
   }
 
-  async validate(payload: { sub: number; email: string }) {
+  async validate(req: Request, payload: { sub: number; email: string }) {
     const user = await this.userModule.findOne({
       email: payload.email,
     });
-
     if (!user || !user.hashedRt) {
       throw new UnauthorizedException(
         'Authentication failed. Please provide a valid token.',
@@ -38,6 +41,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     }
     user.hash = undefined;
     user.hashedRt = undefined;
-    return user;
+
+    const refresh_token = req.cookies['refresh_token'];
+
+    return {
+      user,
+      refresh_token,
+    };
   }
 }
