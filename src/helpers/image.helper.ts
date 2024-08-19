@@ -1,18 +1,8 @@
 import { diskStorage } from 'multer';
+import { uploadImageSize, uploadImageType } from 'src/validators';
 import { v4 as uuidv4 } from 'uuid';
 
-type ValidFileExtensions = 'jpg' | 'jpeg' | 'png' | 'gif';
-type ValidFileTypes = 'image';
-
-const ValidFileExtensions: ValidFileExtensions[] = [
-  'jpg',
-  'jpeg',
-  'png',
-  'gif',
-];
-const ValidFileTypes: ValidFileTypes[] = ['image'];
-
-export const imageStorage = {
+export const imageHelper = {
   storage: diskStorage({
     destination: `${process.cwd()}/images`,
     filename: (req, file, cb) => {
@@ -21,4 +11,10 @@ export const imageStorage = {
       cb(null, filename);
     },
   }),
+  fileFilter: (req, file, cb) => {
+    if (uploadImageType(req, file, cb) && uploadImageSize(req, file, cb)) {
+      console.log('File is valid');
+      cb(null, true);
+    }
+  },
 };
