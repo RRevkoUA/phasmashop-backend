@@ -10,7 +10,7 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
-import { User } from 'src/schemas/users.schema';
+import { User } from 'src/schemas/User.schema';
 import { JwtGuard } from 'src/auth/guard';
 import { ApiAccessAuth, GetUser } from 'src/auth/decorator';
 

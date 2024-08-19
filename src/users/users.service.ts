@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/users.schema';
+import { User } from 'src/schemas/User.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
 import * as argon from 'argon2';
