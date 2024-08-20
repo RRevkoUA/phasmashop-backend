@@ -8,23 +8,23 @@ export class CategoryService {
   constructor(
     @InjectModel(Category.name) private categoryModule: Model<Category>,
   ) {}
-  findAll(): string {
-    return 'This action returns all category';
+  findAll() {
+    return this.categoryModule.find();
   }
 
-  findOne(): string {
-    return 'This action returns a category';
+  findOne() {
+    return this.categoryModule.findOne({ name: '' });
   }
 
   create() {
-    return 'This action adds a new category';
+    return this.categoryModule.create({ name: '', isAvailable: false });
   }
 
   update() {
-    return 'This action updates a category';
+    return this.categoryModule.updateOne({ name: '' }, { isAvailable: true });
   }
 
   remove() {
-    return 'This action removes a category';
+    return this.categoryModule.deleteOne({ name: '' });
   }
 }
