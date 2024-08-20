@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Category } from 'src/common/schemas';
@@ -20,7 +24,7 @@ export class CategoryService {
   async create(dto: CreateCategoryDto) {
     const category = await this.categoryModule.findOne({ name: dto.name });
     if (category) {
-      throw new NotFoundException('Category already exists');
+      throw new ForbiddenException('Category already exists');
     }
     return await this.categoryModule.create(dto);
   }
