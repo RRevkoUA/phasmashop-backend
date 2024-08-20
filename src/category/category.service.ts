@@ -14,27 +14,32 @@ export class CategoryService {
   }
 
   async findOne(categoryName: string) {
-    // TBD :: Check if category exists
-    return await this.categoryModule.findOne({ name: categoryName });
+    return await this.#getCategory(categoryName);
   }
 
   async create(dto: CreateCategoryDto) {
-    // TBD :: Check if category already exists
+    const category = await this.categoryModule.findOne({ name: dto.name });
+    if (category) {
+      throw new NotFoundException('Category already exists');
+    }
     return await this.categoryModule.create(dto);
   }
 
   async update(categoryName: string, dto: UpdateCategoryDto) {
-    const category: Category = await this.categoryModule.findOne({
-      name: categoryName,
-    });
-    if (!category) {
-      throw new NotFoundException('Category "' + categoryName + '" not found');
-    }
+    const category = await this.#getCategory(categoryName);
     return await this.categoryModule.updateOne(category, dto);
   }
 
-  remove(categoryName: string) {
-    // TBD :: Check if category exists
-    return this.categoryModule.deleteOne({ name: categoryName });
+  async remove(categoryName: string) {
+    const category = await this.#getCategory(categoryName);
+    return await this.categoryModule.deleteOne(category);
+  }
+
+  async #getCategory(categoryName: string): Promise<Category> {
+    const category = await this.categoryModule.findOne({ name: categoryName });
+    if (!category) {
+      throw new NotFoundException('Category not Found');
+    }
+    return category;
   }
 }
