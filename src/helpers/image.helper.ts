@@ -13,7 +13,6 @@ export const imageHelper = {
   }),
   fileFilter: (req, file, cb) => {
     if (uploadImageType(req, file, cb) && uploadImageSize(req, file, cb)) {
-      console.log('File is valid');
       cb(null, true);
     }
   },
