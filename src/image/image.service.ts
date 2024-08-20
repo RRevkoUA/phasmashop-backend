@@ -11,15 +11,15 @@ export class ImageService {
   }
 
   async findOne(id: Types.ObjectId) {
-    return await this.#imageExists(id);
+    return await this.#getImage(id);
   }
 
   async remove(id: Types.ObjectId) {
-    const image = await this.#imageExists(id);
-    await image.deleteOne();
+    const image = await this.#getImage(id);
+    await this.imageModule.deleteOne(image);
   }
 
-  async #imageExists(id: Types.ObjectId) {
+  async #getImage(id: Types.ObjectId): Promise<Image> {
     const image = await this.imageModule.findOne({ _id: id });
     if (!image) {
       throw new NotFoundException('Image not Found');
