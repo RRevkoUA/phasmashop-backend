@@ -1,30 +1,40 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Category } from 'src/schemas';
+import { Category } from 'src/common/schemas';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectModel(Category.name) private categoryModule: Model<Category>,
   ) {}
-  findAll() {
-    return this.categoryModule.find();
+  async findAll() {
+    return await this.categoryModule.find();
   }
 
-  findOne() {
-    return this.categoryModule.findOne({ name: '' });
+  async findOne(categoryName: string) {
+    // TBD :: Check if category exists
+    return await this.categoryModule.findOne({ name: categoryName });
   }
 
-  create() {
-    return this.categoryModule.create({ name: '', isAvailable: false });
+  async create(dto: CreateCategoryDto) {
+    // TBD :: Check if category already exists
+    return await this.categoryModule.create(dto);
   }
 
-  update() {
-    return this.categoryModule.updateOne({ name: '' }, { isAvailable: true });
+  async update(categoryName: string, dto: UpdateCategoryDto) {
+    const category: Category = await this.categoryModule.findOne({
+      name: categoryName,
+    });
+    if (!category) {
+      throw new NotFoundException('Category "' + categoryName + '" not found');
+    }
+    return await this.categoryModule.updateOne(category, dto);
   }
 
-  remove() {
-    return this.categoryModule.deleteOne({ name: '' });
+  remove(categoryName: string) {
+    // TBD :: Check if category exists
+    return this.categoryModule.deleteOne({ name: categoryName });
   }
 }

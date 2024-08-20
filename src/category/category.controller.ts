@@ -1,31 +1,54 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { CategoryService } from './category.service';
+import { ApiTags } from '@nestjs/swagger';
+import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { JwtGuard } from 'src/common/guard';
+import { ApiAccessAuth } from 'src/common/decorator';
 
+@ApiTags('Category')
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  async findAll() {
+    return await this.categoryService.findAll();
   }
 
   @Get(':category')
-  findOne() {
-    return this.categoryService.findOne();
+  async findOne(@Param('category') categoryName: string) {
+    return await this.categoryService.findOne(categoryName);
   }
 
+  @ApiAccessAuth()
+  @UseGuards(JwtGuard)
   @Post()
-  create() {
-    return this.categoryService.create();
+  async create(@Body() dto: CreateCategoryDto) {
+    return await this.categoryService.create(dto);
   }
 
-  @Put()
-  update() {
-    return this.categoryService.update();
+  @ApiAccessAuth()
+  @UseGuards(JwtGuard)
+  @Patch(':category')
+  async update(
+    @Param('category') categoryName: string,
+    @Body() dto: UpdateCategoryDto,
+  ) {
+    return await this.categoryService.update(categoryName, dto);
   }
 
-  @Delete()
-  remove() {
-    return this.categoryService.remove();
+  @ApiAccessAuth()
+  @UseGuards(JwtGuard)
+  @Delete(':category')
+  remove(@Param('category') categoryName: string) {
+    return this.categoryService.remove(categoryName);
   }
 }
