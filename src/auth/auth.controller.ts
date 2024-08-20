@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { SigninAuthDto, SignupAuthDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Tokens } from './types';
-import { User } from 'src/schemas/users.schema';
+import { User } from 'src/schemas/User.schema';
 import { ApiAccessAuth, ApiRefreshAuth, GetUser, SetCookie } from './decorator';
 import { JwtGuard, JwtRefreshGuard } from './guard';
 @ApiTags('Auth')

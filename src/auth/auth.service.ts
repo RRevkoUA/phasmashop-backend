@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { SigninAuthDto, SignupAuthDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/users.schema';
+import { User } from 'src/schemas/User.schema';
 import { Model, Types } from 'mongoose';
 import { isEmail } from 'class-validator';
 import { Tokens } from './types';
@@ -68,7 +68,6 @@ export class AuthService {
     if (!userObj) {
       throw new ForbiddenException('Invalid user');
     }
-    console.log(userObj.hashedRt);
     const rtMaches = await argon.verify(userObj.hashedRt, refresh_token);
     if (!rtMaches) {
       throw new ForbiddenException('Invalid refresh token');
