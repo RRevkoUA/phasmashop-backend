@@ -19,7 +19,7 @@ export class UsersService {
 
   async findAll() {
     const usersArr: User[] = [];
-    const cursor = this.userModule.find().cursor();
+    const cursor = this.userModule.find().populate('avatar').cursor();
     for (
       let doc = await cursor.next();
       doc != null;
@@ -37,7 +37,7 @@ export class UsersService {
   }
 
   async findUser(username: string) {
-    const user = await this.userModule.findOne({ username });
+    const user = await this.userModule.findOne({ username }).populate('avatar');
     if (!user) {
       throw new NotFoundException('User not Found');
     }
@@ -76,6 +76,6 @@ export class UsersService {
       filename: file.filename,
       author: user,
     });
-    return await this.userModule.findOneAndUpdate(user, { avatar: image });
+    return await this.userModule.findOneAndUpdate(user, { avatar: image._id });
   }
 }
