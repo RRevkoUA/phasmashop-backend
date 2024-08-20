@@ -5,7 +5,7 @@ import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
 import mongoose from 'mongoose';
-import { UserSeed } from 'src/seeders/user.seeder';
+import { UserSeed } from 'src/common/seeders/user.seeder';
 import * as cookieParser from 'cookie-parser';
 
 describe('AuthController E2E Test', () => {

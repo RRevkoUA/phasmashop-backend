@@ -1,5 +1,5 @@
 import { diskStorage } from 'multer';
-import { uploadImageSize, uploadImageType } from 'src/validators';
+import { uploadImageSize, uploadImageType } from 'src/common/validators';
 import { v4 as uuidv4 } from 'uuid';
 
 export const imageHelper = {

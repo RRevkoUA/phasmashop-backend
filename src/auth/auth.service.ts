@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { SigninAuthDto, SignupAuthDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/User.schema';
+import { User } from 'src/common/schemas/User.schema';
 import { Model, Types } from 'mongoose';
 import { isEmail } from 'class-validator';
 import { Tokens } from './types';

@@ -10,9 +10,14 @@ import { AuthService } from './auth.service';
 import { SigninAuthDto, SignupAuthDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Tokens } from './types';
-import { User } from 'src/schemas/User.schema';
-import { ApiAccessAuth, ApiRefreshAuth, GetUser, SetCookie } from './decorator';
-import { JwtGuard, JwtRefreshGuard } from './guard';
+import { User } from 'src/common/schemas/User.schema';
+import {
+  ApiAccessAuth,
+  ApiRefreshAuth,
+  GetUser,
+  SetCookie,
+} from '../common/decorator';
+import { JwtGuard, JwtRefreshGuard } from '../common/guard';
 @ApiTags('Auth')
 @Controller('')
 export class AuthController {

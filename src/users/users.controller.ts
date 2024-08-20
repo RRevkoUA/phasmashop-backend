@@ -13,11 +13,11 @@ import {
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
 import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { User } from 'src/schemas/User.schema';
-import { JwtGuard } from 'src/auth/guard';
-import { ApiAccessAuth, GetUser } from 'src/auth/decorator';
+import { User } from 'src/common/schemas/User.schema';
+import { JwtGuard } from 'src/common/guard';
+import { ApiAccessAuth, GetUser } from 'src/common/decorator';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { imageHelper } from 'src/helpers/image.helper';
+import { imageHelper } from 'src/common/helpers/image.helper';
 
 @ApiTags('Users')
 @ApiAccessAuth()
