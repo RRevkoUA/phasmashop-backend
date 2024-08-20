@@ -9,12 +9,14 @@ import { Image } from 'src/common/schemas/Image.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
 import * as argon from 'argon2';
+import { ImageService } from 'src/image/image.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModule: Model<User>,
     @InjectModel(Image.name) private imageModule: Model<Image>,
+    private imageService: ImageService,
   ) {}
 
   async findAll() {
@@ -72,10 +74,11 @@ export class UsersService {
   }
 
   async uploadAvatar(user: User, file: Express.Multer.File) {
-    const image = await this.imageModule.create({
-      filename: file.filename,
-      author: user,
-    });
+    const currentUser = await this.userModule.findOne(user);
+    const image = await this.imageService.create(
+      file.filename,
+      currentUser._id,
+    );
     return await this.userModule.findOneAndUpdate(user, { avatar: image._id });
   }
 }
