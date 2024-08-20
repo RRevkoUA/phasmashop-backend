@@ -7,7 +7,6 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
-import { CategoryService } from './category/category.service';
 import { CategoryModule } from './category/category.module';
 
 @Module({
@@ -29,6 +28,6 @@ import { CategoryModule } from './category/category.module';
     CategoryModule,
   ],
   controllers: [AppController],
-  providers: [AppService, CategoryService],
+  providers: [AppService],
 })
 export class AppModule {}
