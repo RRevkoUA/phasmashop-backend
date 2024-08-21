@@ -7,7 +7,7 @@ import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Subcategory } from 'src/common/schemas';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
@@ -21,9 +21,6 @@ export class SubcategoryService {
     const category: any = await this.categoryService.findOne(
       createSubcategoryDto.category,
     );
-    if (!category) {
-      throw new NotFoundException('Category not found');
-    }
 
     try {
       const subcategory = await this.subcategoryModule.create({
@@ -37,24 +34,11 @@ export class SubcategoryService {
     }
   }
 
-  findAll() {
-    return this.subcategoryModule.find();
+  async findAll() {
+    return await this.subcategoryModule.find();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} subcategory`;
-  }
-
-  update(id: string, updateSubcategoryDto: UpdateSubcategoryDto) {
-    return `This action updates a #${id} subcategory`;
-  }
-
-  async remove(id: string) {
-    const subcategory = await this.#getSubcategory(id);
-    return await this.subcategoryModule.deleteOne(subcategory);
-  }
-
-  async #getSubcategory(subcategoryName: string): Promise<Subcategory> {
+  async findOne(subcategoryName: string) {
     const subcategory = await this.subcategoryModule
       .findOne({
         name: subcategoryName,
@@ -66,5 +50,45 @@ export class SubcategoryService {
       );
     }
     return subcategory;
+  }
+
+  async update(
+    subcategoryName: string,
+    updateSubcategoryDto: UpdateSubcategoryDto,
+  ) {
+    const subcategory: any = await this.findOne(subcategoryName);
+    console.log(subcategory);
+    if (updateSubcategoryDto.category) {
+      const category: any = await this.categoryService.findOne(
+        updateSubcategoryDto.category,
+      );
+      console.log(category);
+      this.categoryService.removeSubcategory(
+        subcategory.category._id,
+        subcategory._id,
+      );
+      this.categoryService.addSubcategory(category._id, subcategory._id);
+      delete updateSubcategoryDto.category;
+    }
+    return await this.subcategoryModule.findOneAndUpdate(
+      subcategory,
+      updateSubcategoryDto,
+      { new: true },
+    );
+  }
+
+  async remove(subcategoryName: string) {
+    const subcategory = await this.findOne(subcategoryName);
+    this.categoryService.removeSubcategory(
+      subcategory.category._id,
+      subcategory._id,
+    );
+    return await this.subcategoryModule.findByIdAndDelete(subcategory._id);
+  }
+
+  async removeArray(subcategoryId: Types.ObjectId[]) {
+    await this.subcategoryModule.findByIdAndDelete({
+      _id: { $in: subcategoryId },
+    });
   }
 }
