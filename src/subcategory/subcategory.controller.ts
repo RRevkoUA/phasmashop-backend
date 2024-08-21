@@ -6,15 +6,26 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { SubcategoryService } from './subcategory.service';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiAccessAuth } from 'src/common/decorator';
+import { JwtGuard } from 'src/common/guard';
 
-@Controller('subcategory')
+@ApiTags('Subcategory')
+@ApiParam({
+  name: 'category',
+  description: 'Category name',
+})
+@Controller(':category')
 export class SubcategoryController {
   constructor(private readonly subcategoryService: SubcategoryService) {}
 
+  @ApiAccessAuth()
+  @UseGuards(JwtGuard)
   @Post()
   create(@Body() createSubcategoryDto: CreateSubcategoryDto) {
     return this.subcategoryService.create(createSubcategoryDto);
@@ -25,22 +36,28 @@ export class SubcategoryController {
     return this.subcategoryService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.subcategoryService.findOne(+id);
+  @Get(':subcategory')
+  findOne(@Param('subcategory') subcategoryName: string) {
+    return this.subcategoryService.findOne(subcategoryName);
   }
 
-  @Patch(':id')
+  @ApiAccessAuth()
+  @UseGuards(JwtGuard)
+  @Patch(':subcategory')
   update(
-    @Param('id') id: string,
+    @Param('subcategory') subcategoryName: string,
     @Body() updateSubcategoryDto: UpdateSubcategoryDto,
   ) {
-    console.log('ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff');
-    return this.subcategoryService.update(+id, updateSubcategoryDto);
+    return this.subcategoryService.update(
+      subcategoryName,
+      updateSubcategoryDto,
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.subcategoryService.remove(+id);
+  @ApiAccessAuth()
+  @UseGuards(JwtGuard)
+  @Delete(':subcategory')
+  remove(@Param('subcategory') subcategoryName: string) {
+    return this.subcategoryService.remove(subcategoryName);
   }
 }
