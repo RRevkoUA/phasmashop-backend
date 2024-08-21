@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Image {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   filename: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })

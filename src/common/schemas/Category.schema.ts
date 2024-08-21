@@ -3,14 +3,14 @@ import { Types } from 'mongoose';
 
 @Schema({ timestamps: false })
 export class Category {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string;
 
   @Prop({ required: false, default: false })
   isAvailable?: boolean;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Subcategory' }] })
-  subCategories: Types.ObjectId[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Subcategory', unique: true }] })
+  subcategories: Types.ObjectId[];
 }
 
 export const CategorySchema = SchemaFactory.createForClass(Category);
