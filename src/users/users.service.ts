@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from 'src/common/schemas/User.schema';
-import { Image } from 'src/common/schemas/Image.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
 import * as argon from 'argon2';
@@ -15,7 +14,6 @@ import { ImageService } from 'src/image/image.service';
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModule: Model<User>,
-    @InjectModel(Image.name) private imageModule: Model<Image>,
     private imageService: ImageService,
   ) {}
 
