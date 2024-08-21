@@ -11,16 +11,12 @@ import {
 import { SubcategoryService } from './subcategory.service';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
-import { ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { ApiAccessAuth } from 'src/common/decorator';
 import { JwtGuard } from 'src/common/guard';
 
 @ApiTags('Subcategory')
-@ApiParam({
-  name: 'category',
-  description: 'Category name',
-})
-@Controller(':category')
+@Controller('subcategory')
 export class SubcategoryController {
   constructor(private readonly subcategoryService: SubcategoryService) {}
 
