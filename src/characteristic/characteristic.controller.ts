@@ -1,8 +1,17 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { CharacteristicService } from './characteristic.service';
-import { CreateCharacteristicDto } from './dto/create-characteristic.dto';
-import { UpdateCharacteristicDto } from './dto/update-characteristic.dto';
+import { CreateCharacteristicDto, UpdateCharacteristicDto } from './dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Characteristic')
 @Controller('characteristic')
 export class CharacteristicController {
   constructor(private readonly characteristicService: CharacteristicService) {}
@@ -17,18 +26,24 @@ export class CharacteristicController {
     return this.characteristicService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.characteristicService.findOne(+id);
+  @Get(':characteristic')
+  findOne(@Param('characteristic') characteristicName: string) {
+    return this.characteristicService.findOne(characteristicName);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCharacteristicDto: UpdateCharacteristicDto) {
-    return this.characteristicService.update(+id, updateCharacteristicDto);
+  @Patch(':characteristic')
+  update(
+    @Param('characteristic') characteristicName: string,
+    @Body() updateCharacteristicDto: UpdateCharacteristicDto,
+  ) {
+    return this.characteristicService.update(
+      characteristicName,
+      updateCharacteristicDto,
+    );
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.characteristicService.remove(+id);
+  @Delete(':characteristic')
+  remove(@Param('characteristic') characteristicName: string) {
+    return this.characteristicService.remove(characteristicName);
   }
 }

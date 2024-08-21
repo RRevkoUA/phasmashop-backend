@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateCharacteristicDto } from './dto/create-characteristic.dto';
-import { UpdateCharacteristicDto } from './dto/update-characteristic.dto';
+import { CreateCharacteristicDto, UpdateCharacteristicDto } from './dto';
 
 @Injectable()
 export class CharacteristicService {
@@ -12,15 +11,18 @@ export class CharacteristicService {
     return `This action returns all characteristic`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} characteristic`;
+  findOne(characteristic: string) {
+    return `This action returns a #${characteristic} characteristic`;
   }
 
-  update(id: number, updateCharacteristicDto: UpdateCharacteristicDto) {
-    return `This action updates a #${id} characteristic`;
+  update(
+    characteristic: string,
+    updateCharacteristicDto: UpdateCharacteristicDto,
+  ) {
+    return `This action updates a #${characteristic} characteristic`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} characteristic`;
+  remove(characteristic: string) {
+    return `This action removes a #${characteristic} characteristic`;
   }
 }
