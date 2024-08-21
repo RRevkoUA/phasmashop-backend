@@ -1,10 +1,26 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateCharacteristicDto, UpdateCharacteristicDto } from './dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Characteristic } from 'src/common/schemas';
 
 @Injectable()
 export class CharacteristicService {
-  create(createCharacteristicDto: CreateCharacteristicDto) {
-    return 'This action adds a new characteristic';
+  constructor(
+    @InjectModel(Characteristic.name)
+    private characteristicModel: Model<Characteristic>,
+  ) {}
+
+  async create(createCharacteristicDto: CreateCharacteristicDto) {
+    try {
+      return await this.characteristicModel.create(createCharacteristicDto);
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new ForbiddenException('Characteristic already exists');
+      }
+      console.error(error);
+      throw new ForbiddenException('Something went wrong');
+    }
   }
 
   findAll() {
