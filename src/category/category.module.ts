@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { CategoryController } from './category.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Category, CategorySchema } from 'src/common/schemas';
@@ -13,7 +13,7 @@ import { SubcategoryModule } from 'src/subcategory/subcategory.module';
         schema: CategorySchema,
       },
     ]),
-    SubcategoryModule,
+    forwardRef(() => SubcategoryModule),
   ],
   controllers: [CategoryController],
   providers: [CategoryService],
