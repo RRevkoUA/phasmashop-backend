@@ -9,6 +9,9 @@ export class Subcategory {
   @Prop({ required: true })
   isAvailable: boolean;
 
+  @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
+  category: Types.ObjectId;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Characteristics' }] })
   characteristics: Types.ObjectId[];
 }
