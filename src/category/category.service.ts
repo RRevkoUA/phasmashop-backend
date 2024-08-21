@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,11 +9,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Category } from 'src/common/schemas';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
+import { SubcategoryService } from 'src/subcategory/subcategory.service';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectModel(Category.name) private categoryModule: Model<Category>,
+    @Inject(forwardRef(() => SubcategoryService))
+    private readonly subcategoryService: SubcategoryService,
   ) {}
   async findAll() {
     return await this.categoryModule.find();
@@ -40,6 +45,7 @@ export class CategoryService {
 
   async remove(categoryName: string) {
     const category = await this.findOne(categoryName);
+    await this.subcategoryService.removeArray(category.subcategories);
     return await this.categoryModule.findByIdAndDelete(category._id);
   }
 

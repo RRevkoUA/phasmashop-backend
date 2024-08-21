@@ -1,5 +1,7 @@
 import {
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -15,6 +17,7 @@ export class SubcategoryService {
   constructor(
     @InjectModel(Subcategory.name)
     private subcategoryModule: Model<Subcategory>,
+    @Inject(forwardRef(() => CategoryService))
     private readonly categoryService: CategoryService,
   ) {}
   async create(createSubcategoryDto: CreateSubcategoryDto) {
@@ -87,7 +90,7 @@ export class SubcategoryService {
   }
 
   async removeArray(subcategoryId: Types.ObjectId[]) {
-    await this.subcategoryModule.findByIdAndDelete({
+    await this.subcategoryModule.deleteMany({
       _id: { $in: subcategoryId },
     });
   }
