@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Category } from 'src/common/schemas';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
 
@@ -37,6 +37,20 @@ export class CategoryService {
   async remove(categoryName: string) {
     const category = await this.#getCategory(categoryName);
     return await this.categoryModule.deleteOne(category);
+  }
+
+  async addSubcategory(category: Category, subcategoryId: Types.ObjectId) {
+    return await this.categoryModule.updateOne(category, {
+      subcategories: [...category.subcategories, subcategoryId],
+    });
+  }
+
+  async removeSubcategory(category: Category, subcategoryId: Types.ObjectId) {
+    return await this.categoryModule.updateOne(category, {
+      subcategories: category.subcategories.filter(
+        (id) => !id.equals(subcategoryId),
+      ),
+    });
   }
 
   async #getCategory(categoryName: string): Promise<Category> {
