@@ -18,7 +18,11 @@ export class CategoryService {
   }
 
   async findOne(categoryName: string) {
-    return await this.#getCategory(categoryName);
+    const category = await this.categoryModule.findOne({ name: categoryName });
+    if (!category) {
+      throw new NotFoundException('Category not Found');
+    }
+    return category;
   }
 
   async create(dto: CreateCategoryDto) {
@@ -30,34 +34,30 @@ export class CategoryService {
   }
 
   async update(categoryName: string, dto: UpdateCategoryDto) {
-    const category = await this.#getCategory(categoryName);
-    return await this.categoryModule.updateOne(category, dto);
+    const category = await this.findOne(categoryName);
+    return await this.categoryModule.findByIdAndUpdate(category._id, dto);
   }
 
   async remove(categoryName: string) {
-    const category = await this.#getCategory(categoryName);
-    return await this.categoryModule.deleteOne(category);
+    const category = await this.findOne(categoryName);
+    return await this.categoryModule.findByIdAndDelete(category._id);
   }
 
-  async addSubcategory(category: Category, subcategoryId: Types.ObjectId) {
-    return await this.categoryModule.updateOne(category, {
-      subcategories: [...category.subcategories, subcategoryId],
+  async addSubcategory(
+    categoryId: Types.ObjectId,
+    subcategoryId: Types.ObjectId,
+  ) {
+    return await this.categoryModule.findByIdAndUpdate(categoryId, {
+      $push: { subcategories: subcategoryId },
     });
   }
 
-  async removeSubcategory(category: Category, subcategoryId: Types.ObjectId) {
-    return await this.categoryModule.updateOne(category, {
-      subcategories: category.subcategories.filter(
-        (id) => !id.equals(subcategoryId),
-      ),
+  async removeSubcategory(
+    categoryId: Types.ObjectId,
+    subcategoryId: Types.ObjectId,
+  ) {
+    return await this.categoryModule.findByIdAndUpdate(categoryId, {
+      $pull: { subcategories: subcategoryId },
     });
-  }
-
-  async #getCategory(categoryName: string): Promise<Category> {
-    const category = await this.categoryModule.findOne({ name: categoryName });
-    if (!category) {
-      throw new NotFoundException('Category not Found');
-    }
-    return category;
   }
 }
