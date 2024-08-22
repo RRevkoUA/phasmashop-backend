@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCharacteristicDto, UpdateCharacteristicDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -37,11 +41,26 @@ export class CharacteristicService {
     return characteristic;
   }
 
-  update(
-    characteristic: string,
+  async update(
+    characteristicName: string,
     updateCharacteristicDto: UpdateCharacteristicDto,
   ) {
-    return `This action updates a #${characteristic} characteristic`;
+    try {
+      const characteristic = await this.characteristicModel.findOneAndUpdate(
+        { name: characteristicName },
+        updateCharacteristicDto,
+        { new: true },
+      );
+      if (characteristic === null) {
+        throw new NotFoundException('Characteristic not found');
+      }
+      return characteristic;
+    } catch (error) {
+      if (error.status === 404) {
+        throw new NotFoundException(error.message);
+      }
+      throw new ForbiddenException('Something went wrong');
+    }
   }
 
   remove(characteristic: string) {
