@@ -46,15 +46,12 @@ export class CharacteristicService {
     updateCharacteristicDto: UpdateCharacteristicDto,
   ) {
     try {
-      const characteristic = await this.characteristicModel.findOneAndUpdate(
-        { name: characteristicName },
+      const characteristic = await this.findOne(characteristicName);
+      return await this.characteristicModel.findByIdAndUpdate(
+        characteristic._id,
         updateCharacteristicDto,
         { new: true },
       );
-      if (characteristic === null) {
-        throw new NotFoundException('Characteristic not found');
-      }
-      return characteristic;
     } catch (error) {
       if (error.status === 404) {
         throw new NotFoundException(error.message);
@@ -63,7 +60,17 @@ export class CharacteristicService {
     }
   }
 
-  remove(characteristic: string) {
-    return `This action removes a #${characteristic} characteristic`;
+  async remove(characteristicName: string) {
+    try {
+      const characteristic = await this.findOne(characteristicName);
+      return await this.characteristicModel.findByIdAndDelete(
+        characteristic._id,
+      );
+    } catch (error) {
+      if (error.status === 404) {
+        throw new NotFoundException(error.message);
+      }
+      throw new ForbiddenException('Something went wrong');
+    }
   }
 }
