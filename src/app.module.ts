@@ -7,6 +7,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { CategoryModule } from './category/category.module';
+import { SubcategoryModule } from './subcategory/subcategory.module';
+import { CharacteristicModule } from './characteristic/characteristic.module';
 
 @Module({
   imports: [
@@ -24,6 +27,9 @@ import { join } from 'path';
     MongooseModule.forRoot(process.env.DB_URL),
     UsersModule,
     AuthModule,
+    CategoryModule,
+    SubcategoryModule,
+    CharacteristicModule,
   ],
   controllers: [AppController],
   providers: [AppService],

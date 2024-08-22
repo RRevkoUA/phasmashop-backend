@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
-import { Image } from './Image.schema';
 
 @Schema({ timestamps: true })
 export class User {
@@ -23,7 +22,7 @@ export class User {
   role: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Image' })
-  avatar?: Image;
+  avatar?: Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

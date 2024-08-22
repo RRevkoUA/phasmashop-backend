@@ -4,22 +4,22 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/User.schema';
-import { Image } from 'src/schemas/Image.schema';
+import { User } from 'src/common/schemas/User.schema';
 import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
 import * as argon from 'argon2';
+import { ImageService } from 'src/image/image.service';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModule: Model<User>,
-    @InjectModel(Image.name) private imageModule: Model<Image>,
+    private imageService: ImageService,
   ) {}
 
   async findAll() {
     const usersArr: User[] = [];
-    const cursor = this.userModule.find().cursor();
+    const cursor = this.userModule.find().populate('avatar').cursor();
     for (
       let doc = await cursor.next();
       doc != null;
@@ -37,7 +37,7 @@ export class UsersService {
   }
 
   async findUser(username: string) {
-    const user = await this.userModule.findOne({ username });
+    const user = await this.userModule.findOne({ username }).populate('avatar');
     if (!user) {
       throw new NotFoundException('User not Found');
     }
@@ -72,10 +72,11 @@ export class UsersService {
   }
 
   async uploadAvatar(user: User, file: Express.Multer.File) {
-    const image = await this.imageModule.create({
-      filename: file.filename,
-      author: user,
-    });
-    return await this.userModule.findOneAndUpdate(user, { avatar: image });
+    const currentUser = await this.userModule.findOne(user);
+    const image = await this.imageService.create(
+      file.filename,
+      currentUser._id,
+    );
+    return await this.userModule.findOneAndUpdate(user, { avatar: image._id });
   }
 }

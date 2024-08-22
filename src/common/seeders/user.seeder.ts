@@ -2,7 +2,7 @@ import { faker } from '@faker-js/faker';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { User } from 'src/schemas/User.schema';
+import { User } from 'src/common/schemas/User.schema';
 import { AuthService } from 'src/auth/auth.service';
 import { SignupAuthDto } from 'src/auth/dto';
 
