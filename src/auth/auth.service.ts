@@ -12,13 +12,13 @@ import { Tokens } from './types';
 export class AuthService {
   constructor(
     private jwt: JwtService,
-    @InjectModel(User.name) private userModule: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   async signup(dto: SignupAuthDto): Promise<Tokens> {
     try {
       const token = await argon.hash(dto.password);
-      const user = await this.userModule.create({
+      const user = await this.userModel.create({
         ...dto,
         hash: token,
       });
@@ -38,11 +38,11 @@ export class AuthService {
     let user;
 
     if (isEmail(dto.login)) {
-      user = await this.userModule.findOne({
+      user = await this.userModel.findOne({
         email: dto.login,
       });
     } else {
-      user = await this.userModule.findOne({
+      user = await this.userModel.findOne({
         username: dto.login,
       });
     }
@@ -60,11 +60,11 @@ export class AuthService {
   }
 
   async logout(user: User) {
-    await this.userModule.findOneAndUpdate(user, { hashedRt: null });
+    await this.userModel.findOneAndUpdate(user, { hashedRt: null });
   }
 
   async refreshTokens(user: User, refresh_token: string) {
-    const userObj = await this.userModule.findOne({ email: user.email });
+    const userObj = await this.userModel.findOne({ email: user.email });
     if (!userObj) {
       throw new ForbiddenException('Invalid user');
     }
@@ -79,7 +79,7 @@ export class AuthService {
 
   async refreshRtHash(userId: Types.ObjectId, refreshToken: string) {
     const hash = await argon.hash(refreshToken);
-    await this.userModule.updateOne({ _id: userId }, { hashedRt: hash });
+    await this.userModel.updateOne({ _id: userId }, { hashedRt: hash });
   }
 
   async signTokens(userId: Types.ObjectId, email: string): Promise<Tokens> {

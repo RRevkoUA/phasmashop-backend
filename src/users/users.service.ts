@@ -13,13 +13,13 @@ import { ImageService } from 'src/image/image.service';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User.name) private userModule: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private imageService: ImageService,
   ) {}
 
   async findAll() {
     const usersArr: User[] = [];
-    const cursor = this.userModule.find().populate('avatar').cursor();
+    const cursor = this.userModel.find().populate('avatar').cursor();
     for (
       let doc = await cursor.next();
       doc != null;
@@ -37,7 +37,7 @@ export class UsersService {
   }
 
   async findUser(username: string) {
-    const user = await this.userModule.findOne({ username }).populate('avatar');
+    const user = await this.userModel.findOne({ username }).populate('avatar');
     if (!user) {
       throw new NotFoundException('User not Found');
     }
@@ -58,7 +58,7 @@ export class UsersService {
         updateData.hash = hash;
       }
 
-      await this.userModule.findOneAndUpdate(user, updateData);
+      await this.userModel.findOneAndUpdate(user, updateData);
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
@@ -68,15 +68,15 @@ export class UsersService {
   }
 
   async delete(user: User) {
-    return await this.userModule.findOneAndDelete(user);
+    return await this.userModel.findOneAndDelete(user);
   }
 
   async uploadAvatar(user: User, file: Express.Multer.File) {
-    const currentUser = await this.userModule.findOne(user);
+    const currentUser = await this.userModel.findOne(user);
     const image = await this.imageService.create(
       file.filename,
       currentUser._id,
     );
-    return await this.userModule.findOneAndUpdate(user, { avatar: image._id });
+    return await this.userModel.findOneAndUpdate(user, { avatar: image._id });
   }
 }

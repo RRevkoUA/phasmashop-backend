@@ -14,16 +14,16 @@ import { SubcategoryService } from 'src/subcategory/subcategory.service';
 @Injectable()
 export class CategoryService {
   constructor(
-    @InjectModel(Category.name) private categoryModule: Model<Category>,
+    @InjectModel(Category.name) private categoryModel: Model<Category>,
     @Inject(forwardRef(() => SubcategoryService))
     private readonly subcategoryService: SubcategoryService,
   ) {}
   async findAll() {
-    return await this.categoryModule.find();
+    return await this.categoryModel.find();
   }
 
   async findOne(categoryName: string) {
-    const category = await this.categoryModule.findOne({ name: categoryName });
+    const category = await this.categoryModel.findOne({ name: categoryName });
     if (!category) {
       throw new NotFoundException('Category not Found');
     }
@@ -31,29 +31,29 @@ export class CategoryService {
   }
 
   async create(dto: CreateCategoryDto) {
-    const category = await this.categoryModule.findOne({ name: dto.name });
+    const category = await this.categoryModel.findOne({ name: dto.name });
     if (category) {
       throw new ForbiddenException('Category already exists');
     }
-    return await this.categoryModule.create(dto);
+    return await this.categoryModel.create(dto);
   }
 
   async update(categoryName: string, dto: UpdateCategoryDto) {
     const category = await this.findOne(categoryName);
-    return await this.categoryModule.findByIdAndUpdate(category._id, dto);
+    return await this.categoryModel.findByIdAndUpdate(category._id, dto);
   }
 
   async remove(categoryName: string) {
     const category = await this.findOne(categoryName);
     await this.subcategoryService.removeArray(category.subcategories);
-    return await this.categoryModule.findByIdAndDelete(category._id);
+    return await this.categoryModel.findByIdAndDelete(category._id);
   }
 
   async addSubcategory(
     categoryId: Types.ObjectId,
     subcategoryId: Types.ObjectId,
   ) {
-    return await this.categoryModule.findByIdAndUpdate(categoryId, {
+    return await this.categoryModel.findByIdAndUpdate(categoryId, {
       $push: { subcategories: subcategoryId },
     });
   }
@@ -62,7 +62,7 @@ export class CategoryService {
     categoryId: Types.ObjectId,
     subcategoryId: Types.ObjectId,
   ) {
-    return await this.categoryModule.findByIdAndUpdate(categoryId, {
+    return await this.categoryModel.findByIdAndUpdate(categoryId, {
       $pull: { subcategories: subcategoryId },
     });
   }
