@@ -5,13 +5,13 @@ import { Image } from 'src/common/schemas';
 
 @Injectable()
 export class ImageService {
-  constructor(@InjectModel(Image.name) private imageModule: Model<Image>) {}
+  constructor(@InjectModel(Image.name) private imageModel: Model<Image>) {}
   async create(filename: string, author?: Types.ObjectId) {
-    return await this.imageModule.create({ filename, author });
+    return await this.imageModel.create({ filename, author });
   }
 
   async findOne(id: Types.ObjectId) {
-    const image = await this.imageModule.findOne({ _id: id });
+    const image = await this.imageModel.findOne({ _id: id });
     if (!image) {
       throw new NotFoundException('Image not Found');
     }
@@ -20,6 +20,6 @@ export class ImageService {
 
   async remove(id: Types.ObjectId) {
     const image = await this.findOne(id);
-    await this.imageModule.findByIdAndDelete(image._id);
+    await this.imageModel.findByIdAndDelete(image._id);
   }
 }

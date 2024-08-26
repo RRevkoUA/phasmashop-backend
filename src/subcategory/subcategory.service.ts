@@ -16,7 +16,7 @@ import { CategoryService } from 'src/category/category.service';
 export class SubcategoryService {
   constructor(
     @InjectModel(Subcategory.name)
-    private subcategoryModule: Model<Subcategory>,
+    private subcategoryModel: Model<Subcategory>,
     @Inject(forwardRef(() => CategoryService))
     private readonly categoryService: CategoryService,
   ) {}
@@ -26,7 +26,7 @@ export class SubcategoryService {
     );
 
     try {
-      const subcategory = await this.subcategoryModule.create({
+      const subcategory = await this.subcategoryModel.create({
         ...createSubcategoryDto,
         category: category._id,
       });
@@ -38,11 +38,11 @@ export class SubcategoryService {
   }
 
   async findAll() {
-    return await this.subcategoryModule.find();
+    return await this.subcategoryModel.find();
   }
 
   async findOne(subcategoryName: string) {
-    const subcategory = await this.subcategoryModule
+    const subcategory = await this.subcategoryModel
       .findOne({
         name: subcategoryName,
       })
@@ -73,7 +73,7 @@ export class SubcategoryService {
       this.categoryService.addSubcategory(category._id, subcategory._id);
       delete updateSubcategoryDto.category;
     }
-    return await this.subcategoryModule.findOneAndUpdate(
+    return await this.subcategoryModel.findOneAndUpdate(
       subcategory,
       updateSubcategoryDto,
       { new: true },
@@ -86,11 +86,11 @@ export class SubcategoryService {
       subcategory.category._id,
       subcategory._id,
     );
-    return await this.subcategoryModule.findByIdAndDelete(subcategory._id);
+    return await this.subcategoryModel.findByIdAndDelete(subcategory._id);
   }
 
   async removeArray(subcategoryId: Types.ObjectId[]) {
-    await this.subcategoryModule.deleteMany({
+    await this.subcategoryModel.deleteMany({
       _id: { $in: subcategoryId },
     });
   }
