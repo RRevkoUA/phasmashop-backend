@@ -1,24 +1,45 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Comment } from 'src/common/schemas';
 import { Model } from 'mongoose';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CommentaryService {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
+    private readonly userService: UsersService,
   ) {}
-  create(createCommentaryDto: CreateCommentaryDto, username: string) {
-    return 'This action adds a new commentary';
+  async create(createCommentaryDto: CreateCommentaryDto, username: string) {
+    // TODO :: Implement adding a Images to commentary.
+    const user = await this.userService.findUser(username);
+    try {
+      const comment = await this.commentModel.create({
+        ...createCommentaryDto,
+        author: user._id,
+      });
+      return comment;
+    } catch (error) {
+      console.error(error);
+      throw new ForbiddenException('Something went wrong');
+    }
   }
 
-  findAll() {
-    return `This action returns all commentary`;
+  async findAll() {
+    return await this.commentModel.find();
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} commentary`;
+  async findOne(id: string) {
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    return comment;
   }
 
   update(
