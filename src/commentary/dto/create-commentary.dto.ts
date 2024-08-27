@@ -11,6 +11,11 @@ export class CreateCommentaryDto {
   })
   text: string;
 
-  @IsString({ each: true })
-  images: string[];
+  @ApiProperty({
+    example: ['image1', 'image2'],
+    description: 'The images of the commentary',
+    required: false,
+    default: [],
+  })
+  images?: string[];
 }
