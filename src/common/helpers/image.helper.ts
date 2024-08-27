@@ -25,13 +25,16 @@ export const imageHelper = {
   avatar: {
     storage: createStorage('avatars'),
     fileFilter: createFileFilter(10, 1024 * 10),
+    limits: { files: 1 },
   },
   commentary: {
     storage: createStorage('commentaries'),
     fileFilter: createFileFilter(10, 1024 * 5),
+    limits: { files: 5 },
   },
   product: {
     storage: createStorage('products'),
     fileFilter: createFileFilter(10, 1024 * 10),
+    limits: { files: 10 },
   },
 };
