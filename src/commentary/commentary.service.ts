@@ -42,12 +42,32 @@ export class CommentaryService {
     return comment;
   }
 
-  update(
+  async update(
     id: string,
     updateCommentaryDto: UpdateCommentaryDto,
     username: string,
   ) {
-    return `This action updates a #${id} commentary`;
+    const user = await this.userService.findUser(username);
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (comment.author.toString() !== user._id.toString()) {
+      throw new ForbiddenException(
+        'You are not allowed to update this comment',
+      );
+    }
+    try {
+      const updatedComment = await this.commentModel.findByIdAndUpdate(
+        id,
+        updateCommentaryDto,
+        { new: true }
+      );
+      return updatedComment;
+    } catch (error) {
+      console.error(error);
+      throw new ForbiddenException('Something went wrong');
+    }
   }
 
   remove(id: string, username: string) {
