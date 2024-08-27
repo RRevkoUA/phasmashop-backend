@@ -26,9 +26,9 @@ export class CommentaryController {
   @Post()
   create(
     @Body() createCommentaryDto: CreateCommentaryDto,
-    @GetUser() username: User & Document,
+    @GetUser() user: User & Document,
   ) {
-    return this.commentaryService.create(createCommentaryDto, username);
+    return this.commentaryService.create(createCommentaryDto, user);
   }
 
   @Get()
@@ -46,13 +46,13 @@ export class CommentaryController {
   update(
     @Param('id') id: string,
     @Body() updateCommentaryDto: UpdateCommentaryDto,
-    @GetUser() username: string,
+    @GetUser() user: User & Document,
   ) {
-    return this.commentaryService.update(id, updateCommentaryDto, username);
+    return this.commentaryService.update(id, updateCommentaryDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @GetUser() username: string) {
-    return this.commentaryService.remove(id, username);
+  remove(@Param('id') id: string, @GetUser() user: User & Document) {
+    return this.commentaryService.remove(id, user);
   }
 }

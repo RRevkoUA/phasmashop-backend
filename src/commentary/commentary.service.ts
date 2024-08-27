@@ -48,9 +48,8 @@ export class CommentaryService {
   async update(
     id: string,
     updateCommentaryDto: UpdateCommentaryDto,
-    username: string,
+    user: User & Document,
   ) {
-    const user = await this.userService.findUser(username);
     const comment = await this.commentModel.findById(id);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -73,9 +72,8 @@ export class CommentaryService {
     }
   }
 
-  async remove(id: string, username: string) {
+  async remove(id: string, user: User & Document) {
     // TODO :: Implement removing an any commentary by MODERATOR or ADMIN.
-    const user = await this.userService.findUser(username);
     const comment = await this.commentModel.findById(id);
     if (!comment) {
       throw new NotFoundException('Comment not found');
