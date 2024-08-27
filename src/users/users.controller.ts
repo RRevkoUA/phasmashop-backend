@@ -6,18 +6,17 @@ import {
   UseGuards,
   Body,
   Param,
-  UseInterceptors,
   Post,
   UploadedFile,
+  ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
-import { ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/schemas/User.schema';
 import { JwtGuard } from 'src/common/guard';
-import { ApiAccessAuth, GetUser } from 'src/common/decorator';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { imageHelper } from 'src/common/helpers/image.helper';
+import { ApiAccessAuth, GetUser, ImageInterceptor } from 'src/common/decorator';
+import { ImageInterceptorEnum } from 'src/common/enums';
 
 @ApiTags('Users')
 @ApiAccessAuth()
@@ -52,23 +51,14 @@ export class UsersController {
   }
 
   @Post('me/avatar')
-  @UseInterceptors(FileInterceptor('file', imageHelper))
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ImageInterceptor(ImageInterceptorEnum.IMAGE_AVATAR)
   uploadAvatar(
     @GetUser() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
+    if (!file) {
+      throw new ForbiddenException('No file provided');
+    }
     return this.usersService.uploadAvatar(user, file);
   }
 }
