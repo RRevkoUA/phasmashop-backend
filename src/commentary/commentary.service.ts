@@ -5,7 +5,8 @@ import {
 } from '@nestjs/common';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Comment } from 'src/common/schemas';
+import { Document } from 'mongoose';
+import { Comment, User } from 'src/common/schemas';
 import { Model } from 'mongoose';
 import { UsersService } from 'src/users/users.service';
 
@@ -15,9 +16,11 @@ export class CommentaryService {
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     private readonly userService: UsersService,
   ) {}
-  async create(createCommentaryDto: CreateCommentaryDto, username: string) {
+  async create(
+    createCommentaryDto: CreateCommentaryDto,
+    user: User & Document,
+  ) {
     // TODO :: Implement adding a Images to commentary.
-    const user = await this.userService.findUser(username);
     try {
       const comment = await this.commentModel.create({
         ...createCommentaryDto,

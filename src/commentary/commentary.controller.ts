@@ -13,6 +13,8 @@ import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
 import { ApiAccessAuth, GetUser } from 'src/common/decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/common/guard';
+import { User } from 'src/common/schemas';
+import { Document } from 'mongoose';
 
 @UseGuards(JwtGuard)
 @ApiAccessAuth()
@@ -24,7 +26,7 @@ export class CommentaryController {
   @Post()
   create(
     @Body() createCommentaryDto: CreateCommentaryDto,
-    @GetUser() username: string,
+    @GetUser() username: User & Document,
   ) {
     return this.commentaryService.create(createCommentaryDto, username);
   }
