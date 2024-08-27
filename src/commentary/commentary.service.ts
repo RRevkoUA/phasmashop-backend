@@ -8,13 +8,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Comment, User } from 'src/common/schemas';
 import { Model } from 'mongoose';
-import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class CommentaryService {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
-    private readonly userService: UsersService,
   ) {}
   async create(
     createCommentaryDto: CreateCommentaryDto,

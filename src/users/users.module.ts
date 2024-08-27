@@ -17,6 +17,5 @@ import { ImageModule } from 'src/image/image.module';
   ],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService],
 })
 export class UsersModule {}
