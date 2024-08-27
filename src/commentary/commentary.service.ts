@@ -1,8 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Comment } from 'src/common/schemas';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class CommentaryService {
+  constructor(
+    @InjectModel(Comment.name) private commentModel: Model<Comment>,
+  ) {}
   create(createCommentaryDto: CreateCommentaryDto, username: string) {
     return 'This action adds a new commentary';
   }
