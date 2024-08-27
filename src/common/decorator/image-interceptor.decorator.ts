@@ -5,19 +5,46 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { imageHelper } from '../helpers/image.helper';
 
 export function ImageInterceptor(imageType: ImageInterceptorEnum) {
-  return applyDecorators(
+  let decorators = applyDecorators(
     UseInterceptors(FileInterceptor('file', imageHelper[imageType])),
     ApiConsumes('multipart/form-data'),
-    ApiBody({
-      schema: {
-        type: 'object',
-        properties: {
-          file: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-      },
-    }),
   );
+
+  switch (imageType) {
+    case ImageInterceptorEnum.IMAGE_AVATAR:
+      return (decorators = applyDecorators(
+        decorators,
+        ApiBody({
+          schema: {
+            type: 'object',
+            properties: {
+              file: {
+                type: 'string',
+                format: 'binary',
+              },
+            },
+          },
+        }),
+      ));
+    case ImageInterceptorEnum.IMAGE_COMMENTARY:
+    case ImageInterceptorEnum.IMAGE_PRODUCT:
+      return (decorators = applyDecorators(
+        decorators,
+        // also add text field to the body request
+        ApiBody({
+          schema: {
+            type: 'object',
+            properties: {
+              files: {
+                type: 'array',
+                items: {
+                  type: 'string',
+                  format: 'binary',
+                },
+              },
+            },
+          },
+        }),
+      ));
+  }
 }
