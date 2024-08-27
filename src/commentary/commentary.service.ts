@@ -61,7 +61,7 @@ export class CommentaryService {
       const updatedComment = await this.commentModel.findByIdAndUpdate(
         id,
         updateCommentaryDto,
-        { new: true }
+        { new: true },
       );
       return updatedComment;
     } catch (error) {
@@ -70,7 +70,23 @@ export class CommentaryService {
     }
   }
 
-  remove(id: string, username: string) {
-    return `This action removes a #${id} commentary`;
+  async remove(id: string, username: string) {
+    // TODO :: Implement removing an any commentary by MODERATOR or ADMIN.
+    const user = await this.userService.findUser(username);
+    const comment = await this.commentModel.findById(id);
+    if (!comment) {
+      throw new NotFoundException('Comment not found');
+    }
+    if (comment.author.toString() !== user._id.toString()) {
+      throw new ForbiddenException(
+        'You are not allowed to remove this comment',
+      );
+    }
+    try {
+      return await this.commentModel.findByIdAndDelete(id);
+    } catch (error) {
+      console.error(error);
+      throw new ForbiddenException('Something went wrong');
+    }
   }
 }
