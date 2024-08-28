@@ -5,3 +5,4 @@ export * from './Subcategory.schema';
 export * from './Characteristic.schema';
 export * from './Tag.schema';
 export * from './Comment.schema';
+export * from './Product.schema';

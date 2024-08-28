@@ -11,6 +11,7 @@ import { CategoryModule } from './category/category.module';
 import { SubcategoryModule } from './subcategory/subcategory.module';
 import { CharacteristicModule } from './characteristic/characteristic.module';
 import { CommentaryModule } from './commentary/commentary.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { CommentaryModule } from './commentary/commentary.module';
     SubcategoryModule,
     CharacteristicModule,
     CommentaryModule,
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],
