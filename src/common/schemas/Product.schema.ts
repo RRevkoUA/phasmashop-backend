@@ -56,7 +56,7 @@ export class Product {
       },
     ],
   })
-  characteristics: [{ characteristic: Types.ObjectId; value: string }];
+  characteristics: { characteristic: Types.ObjectId; value: string }[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

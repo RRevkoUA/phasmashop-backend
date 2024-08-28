@@ -104,11 +104,12 @@ export class CreateProductDto {
   images: string[];
 
   @ApiProperty({
-    example: '[{characteristic: "60e4e1b2b2f7b2f7b2f7b2f7", value: "value"}]',
+    example:
+      '[{"characteristic": "60e4e1b2b2f7b2f7b2f7b2f7", "value": "value"}]',
     description: 'The characteristics array',
     required: false,
     default: '',
   })
   @IsOptional()
-  characteristics?: [{ characteristic: string; value: string }];
+  characteristics?: { characteristic: string; value: string }[];
 }
