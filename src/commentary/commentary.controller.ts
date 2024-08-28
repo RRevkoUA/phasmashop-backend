@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  UploadedFiles,
 } from '@nestjs/common';
 import { CommentaryService } from './commentary.service';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
@@ -24,7 +25,6 @@ import { ImageInterceptorEnum } from 'src/common/enums';
 export class CommentaryController {
   constructor(private readonly commentaryService: CommentaryService) {}
 
-  @ImageInterceptor(ImageInterceptorEnum.IMAGE_COMMENTARY)
   @Post()
   create(
     @Body() createCommentaryDto: CreateCommentaryDto,
@@ -51,6 +51,16 @@ export class CommentaryController {
     @GetUser() user: User & Document,
   ) {
     return this.commentaryService.update(id, updateCommentaryDto, user);
+  }
+
+  @ImageInterceptor(ImageInterceptorEnum.IMAGE_COMMENTARY)
+  @Patch(':id/images')
+  addImages(
+    @Param('id') id: string,
+    @GetUser() user: User & Document,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.commentaryService.addImages(id, user, files);
   }
 
   @Delete(':id')
