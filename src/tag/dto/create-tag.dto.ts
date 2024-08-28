@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 
 export class CreateTagDto {
   @ApiProperty({
@@ -10,13 +10,4 @@ export class CreateTagDto {
   })
   @IsString()
   name: string;
-
-  @ApiProperty({
-    example: ['value1', 'value2'],
-    description: 'The array of values for the tag',
-    required: false,
-    default: ['value1', 'value2'],
-  })
-  @IsArray()
-  enum?: string[];
 }

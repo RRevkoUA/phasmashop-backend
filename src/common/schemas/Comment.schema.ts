@@ -11,7 +11,7 @@ export class Comment {
   author: Types.ObjectId;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Image' }] })
-  image: Types.ObjectId[];
+  images: Types.ObjectId[];
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

@@ -10,6 +10,7 @@ import { join } from 'path';
 import { CategoryModule } from './category/category.module';
 import { SubcategoryModule } from './subcategory/subcategory.module';
 import { CharacteristicModule } from './characteristic/characteristic.module';
+import { CommentaryModule } from './commentary/commentary.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { CharacteristicModule } from './characteristic/characteristic.module';
     CategoryModule,
     SubcategoryModule,
     CharacteristicModule,
+    CommentaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
