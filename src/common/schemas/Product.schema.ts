@@ -1,4 +1,4 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
@@ -58,3 +58,5 @@ export class Product {
   })
   characteristics: [{ characteristic: Types.ObjectId; value: string }];
 }
+
+export const ProductSchema = SchemaFactory.createForClass(Product);
