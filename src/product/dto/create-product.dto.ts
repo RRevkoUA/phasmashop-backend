@@ -20,15 +20,6 @@ export class CreateProductDto {
 
   @IsString()
   @ApiProperty({
-    example: 'Product attribute',
-    description: 'The attribute of the product',
-    required: true,
-    default: 'new-product',
-  })
-  attribute: string;
-
-  @IsString()
-  @ApiProperty({
     example: 'Product description',
     description: 'The description of the product',
     required: true,
