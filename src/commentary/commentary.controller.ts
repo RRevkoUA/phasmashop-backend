@@ -10,11 +10,12 @@ import {
 } from '@nestjs/common';
 import { CommentaryService } from './commentary.service';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
-import { ApiAccessAuth, GetUser } from 'src/common/decorator';
+import { ApiAccessAuth, GetUser, ImageInterceptor } from 'src/common/decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtGuard } from 'src/common/guard';
 import { User } from 'src/common/schemas';
 import { Document } from 'mongoose';
+import { ImageInterceptorEnum } from 'src/common/enums';
 
 @UseGuards(JwtGuard)
 @ApiAccessAuth()
@@ -23,6 +24,7 @@ import { Document } from 'mongoose';
 export class CommentaryController {
   constructor(private readonly commentaryService: CommentaryService) {}
 
+  @ImageInterceptor(ImageInterceptorEnum.IMAGE_COMMENTARY)
   @Post()
   create(
     @Body() createCommentaryDto: CreateCommentaryDto,
