@@ -51,6 +51,7 @@ export class Product {
     required: false,
     type: [
       {
+        _id: false,
         characteristic: { type: Types.ObjectId, ref: 'Characteristic' },
         value: { type: String },
       },
