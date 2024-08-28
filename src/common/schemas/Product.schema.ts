@@ -6,7 +6,7 @@ export class Product {
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   attribute: string;
 
   @Prop({ required: true })
