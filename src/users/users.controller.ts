@@ -3,7 +3,6 @@ import {
   Get,
   Patch,
   Delete,
-  UseGuards,
   Body,
   Param,
   Post,
@@ -14,17 +13,16 @@ import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/schemas/User.schema';
-import { JwtGuard } from 'src/common/guard';
-import { ApiAccessAuth, GetUser, ImageInterceptor } from 'src/common/decorator';
-import { ImageInterceptorEnum } from 'src/common/enums';
+import { GetUser, ImageInterceptor, Role } from 'src/common/decorator';
+import { ImageInterceptorEnum, RoleEnum } from 'src/common/enums';
 
 @ApiTags('Users')
-@ApiAccessAuth()
-@UseGuards(JwtGuard)
+@Role(RoleEnum.USER)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Role(RoleEnum.MODERATOR)
   @Get()
   findAll() {
     return this.usersService.findAll();
