@@ -6,22 +6,20 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { SubcategoryService } from './subcategory.service';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
 import { UpdateSubcategoryDto } from './dto/update-subcategory.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiAccessAuth } from 'src/common/decorator';
-import { JwtGuard } from 'src/common/guard';
+import { RoleEnum } from 'src/common/enums';
+import { Role } from 'src/common/decorator';
 
 @ApiTags('Subcategory')
 @Controller('subcategory')
 export class SubcategoryController {
   constructor(private readonly subcategoryService: SubcategoryService) {}
 
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.ADMIN)
   @Post()
   create(@Body() createSubcategoryDto: CreateSubcategoryDto) {
     return this.subcategoryService.create(createSubcategoryDto);
@@ -37,8 +35,7 @@ export class SubcategoryController {
     return this.subcategoryService.findOne(subcategoryName);
   }
 
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.ADMIN)
   @Patch(':subcategory')
   update(
     @Param('subcategory') subcategoryName: string,
@@ -50,8 +47,7 @@ export class SubcategoryController {
     );
   }
 
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.ADMIN)
   @Delete(':subcategory')
   remove(@Param('subcategory') subcategoryName: string) {
     return this.subcategoryService.remove(subcategoryName);

@@ -6,25 +6,22 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
-  UploadedFiles,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiAccessAuth, GetUser, ImageInterceptor } from 'src/common/decorator';
-import { JwtGuard } from 'src/common/guard';
+import { ImageInterceptorEnum } from 'src/common/enums';
+import { GetUser, Role } from 'src/common/decorator';
 import { Document } from 'mongoose';
 import { User } from 'src/common/schemas';
-import { ImageInterceptorEnum } from 'src/common/enums';
+import { RoleEnum } from 'src/common/enums';
 
-@UseGuards(JwtGuard)
-@ApiAccessAuth()
 @ApiTags('Product')
 @Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
+  @Role(RoleEnum.MODERATOR)
   @Post()
   create(
     @Body() createProductDto: CreateProductDto,
@@ -33,18 +30,17 @@ export class ProductController {
     return this.productService.create(createProductDto, user);
   }
 
-  @UseGuards()
   @Get()
   findAll() {
     return this.productService.findAll();
   }
 
-  @UseGuards()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productService.findOneById(id);
   }
 
+  @Role(RoleEnum.MODERATOR)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -64,6 +60,7 @@ export class ProductController {
     return this.productService.addImages(id, files, user);
   }
 
+  @Role(RoleEnum.MODERATOR)
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() user: User & Document) {
     return this.productService.remove(id, user);

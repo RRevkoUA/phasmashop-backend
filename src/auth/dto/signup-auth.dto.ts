@@ -6,6 +6,7 @@ import {
   IsPhoneNumber,
   IsString,
 } from 'class-validator';
+import { RoleEnum } from 'src/common/enums';
 
 export class SignupAuthDto {
   @IsString()
@@ -33,11 +34,11 @@ export class SignupAuthDto {
   })
   phone?: string;
 
-  @IsEnum(['Admin', 'Moderator', 'User', 'Guest'])
+  @IsEnum(RoleEnum)
   @IsOptional()
   @ApiProperty({
-    default: 'User',
-    enum: ['Admin', 'Moderator', 'User', 'Guest'],
+    default: RoleEnum.USER,
+    enum: RoleEnum,
   })
   role?: string;
 }

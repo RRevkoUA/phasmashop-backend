@@ -10,8 +10,11 @@ import {
 import { TagService } from './tag.service';
 import { CreateTagDto, UpdateTagDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Role } from 'src/common/decorator';
+import { RoleEnum } from 'src/common/enums';
 
 @ApiTags('Tag')
+@Role(RoleEnum.ADMIN)
 @Controller('tag')
 export class TagController {
   constructor(private readonly tagService: TagService) {}

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
+import { RoleEnum } from '../enums';
 
 @Schema({ timestamps: true })
 export class User {
@@ -18,7 +19,7 @@ export class User {
   @Prop()
   phone: string;
 
-  @Prop({ enum: ['Admin', 'Moderator', 'User', 'Guest'], default: 'Guest' })
+  @Prop({ enum: RoleEnum, default: RoleEnum.USER })
   role: string;
 
   @Prop({ type: Types.ObjectId, ref: 'Image' })

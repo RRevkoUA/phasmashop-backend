@@ -10,12 +10,15 @@ import {
 import { CharacteristicService } from './characteristic.service';
 import { CreateCharacteristicDto, UpdateCharacteristicDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { RoleEnum } from 'src/common/enums';
+import { Role } from 'src/common/decorator';
 
 @ApiTags('Characteristic')
 @Controller('characteristic')
 export class CharacteristicController {
   constructor(private readonly characteristicService: CharacteristicService) {}
 
+  @Role(RoleEnum.ADMIN)
   @Post()
   create(@Body() createCharacteristicDto: CreateCharacteristicDto) {
     return this.characteristicService.create(createCharacteristicDto);
@@ -31,6 +34,7 @@ export class CharacteristicController {
     return this.characteristicService.findOne(characteristicName);
   }
 
+  @Role(RoleEnum.ADMIN)
   @Patch(':characteristic')
   update(
     @Param('characteristic') characteristicName: string,
@@ -42,6 +46,7 @@ export class CharacteristicController {
     );
   }
 
+  @Role(RoleEnum.ADMIN)
   @Delete(':characteristic')
   remove(@Param('characteristic') characteristicName: string) {
     return this.characteristicService.remove(characteristicName);

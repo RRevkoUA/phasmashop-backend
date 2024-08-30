@@ -11,20 +11,18 @@ import {
 } from '@nestjs/common';
 import { CommentaryService } from './commentary.service';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
-import { ApiAccessAuth, GetUser, ImageInterceptor } from 'src/common/decorator';
+import { GetUser, ImageInterceptor, Role } from 'src/common/decorator';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtGuard } from 'src/common/guard';
 import { User } from 'src/common/schemas';
 import { Document } from 'mongoose';
-import { ImageInterceptorEnum } from 'src/common/enums';
+import { ImageInterceptorEnum, RoleEnum } from 'src/common/enums';
 
-@UseGuards(JwtGuard)
-@ApiAccessAuth()
 @ApiTags('Commentary')
 @Controller('commentary')
 export class CommentaryController {
   constructor(private readonly commentaryService: CommentaryService) {}
 
+  @Role(RoleEnum.USER)
   @Post()
   create(
     @Body() createCommentaryDto: CreateCommentaryDto,
@@ -33,17 +31,18 @@ export class CommentaryController {
     return this.commentaryService.create(createCommentaryDto, user);
   }
 
+  @Role(RoleEnum.MODERATOR)
   @Get()
   findAll() {
     return this.commentaryService.findAll();
   }
-
   @UseGuards()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.commentaryService.findOne(id);
   }
 
+  @Role(RoleEnum.USER)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -53,6 +52,7 @@ export class CommentaryController {
     return this.commentaryService.update(id, updateCommentaryDto, user);
   }
 
+  @Role(RoleEnum.USER)
   @ImageInterceptor(ImageInterceptorEnum.IMAGE_COMMENTARY)
   @Patch(':id/images')
   addImages(
@@ -63,6 +63,7 @@ export class CommentaryController {
     return this.commentaryService.addImages(id, user, files);
   }
 
+  @Role(RoleEnum.USER)
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() user: User & Document) {
     return this.commentaryService.remove(id, user);
