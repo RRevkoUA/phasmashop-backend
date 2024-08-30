@@ -10,6 +10,7 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
+import { ImageInterceptorEnum } from 'src/common/enums';
 import { GetUser, Role } from 'src/common/decorator';
 import { Document } from 'mongoose';
 import { User } from 'src/common/schemas';
@@ -47,6 +48,16 @@ export class ProductController {
     @GetUser() user: User & Document,
   ) {
     return this.productService.update(id, updateProductDto, user);
+  }
+
+  @Patch(':id/images')
+  @ImageInterceptor(ImageInterceptorEnum.IMAGE_PRODUCT)
+  addImages(
+    @Param('id') id: string,
+    @GetUser() user: User & Document,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    return this.productService.addImages(id, files, user);
   }
 
   @Role(RoleEnum.MODERATOR)

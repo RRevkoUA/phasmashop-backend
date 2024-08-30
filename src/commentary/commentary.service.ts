@@ -9,6 +9,7 @@ import { Document, Types } from 'mongoose';
 import { Comment, User } from 'src/common/schemas';
 import { Model } from 'mongoose';
 import { ImageService } from 'src/image/image.service';
+import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class CommentaryService {
@@ -20,8 +21,6 @@ export class CommentaryService {
     createCommentaryDto: CreateCommentaryDto,
     user: User & Document,
   ) {
-    console.log(createCommentaryDto);
-    // TODO :: Implement adding a Images to commentary.
     try {
       const comment = await this.commentModel.create({
         text: createCommentaryDto.text,
@@ -81,14 +80,23 @@ export class CommentaryService {
     const imageIds: Types.ObjectId[] = [];
     const comment = await this.commentModel.findById(id);
     if (!comment) {
+      await this.imageService.removeByFilenames(
+        files.map((file) => file.filename),
+        ImageInterceptorEnum.IMAGE_COMMENTARY,
+      );
       throw new NotFoundException('Comment not found');
     }
     if (comment.author.toString() !== user._id.toString()) {
+      await this.imageService.removeByFilenames(
+        files.map((file) => file.filename),
+        ImageInterceptorEnum.IMAGE_COMMENTARY,
+      );
       throw new ForbiddenException(
         'You are not allowed to update this comment',
       );
     }
 
+    await this.#removeImages(comment);
     for (const file of files) {
       const imageId = await this.imageService.create(
         file.filename,
@@ -96,7 +104,6 @@ export class CommentaryService {
       );
       imageIds.push(imageId._id);
     }
-    console.log(imageIds);
 
     return await this.commentModel.findByIdAndUpdate(
       id,
@@ -105,7 +112,6 @@ export class CommentaryService {
     );
   }
   async remove(id: string, user: User & Document) {
-    // TODO :: Implement removing an any commentary by MODERATOR or ADMIN.
     const comment = await this.commentModel.findById(id);
     if (!comment) {
       throw new NotFoundException('Comment not found');
@@ -116,10 +122,21 @@ export class CommentaryService {
       );
     }
     try {
+      await this.#removeImages(comment);
       return await this.commentModel.findByIdAndDelete(id);
     } catch (error) {
       console.error(error);
       throw new ForbiddenException('Something went wrong');
     }
   }
+
+  #removeImages = async (comment) => {
+    if (comment.images.length) {
+      await this.commentModel.findByIdAndUpdate(comment._id, { images: [] });
+      await this.imageService.removeMany(
+        comment.images,
+        ImageInterceptorEnum.IMAGE_COMMENTARY,
+      );
+    }
+  };
 }

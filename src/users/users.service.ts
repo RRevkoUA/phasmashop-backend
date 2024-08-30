@@ -9,6 +9,7 @@ import { Model } from 'mongoose';
 import { UpdateUserDto } from './dto';
 import * as argon from 'argon2';
 import { ImageService } from 'src/image/image.service';
+import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class UsersService {
@@ -68,11 +69,27 @@ export class UsersService {
   }
 
   async delete(user: User) {
+    if (user.avatar) {
+      await this.imageService.remove(
+        user.avatar,
+        ImageInterceptorEnum.IMAGE_AVATAR,
+      );
+    }
     return await this.userModel.findOneAndDelete(user);
   }
 
   async uploadAvatar(user: User, file: Express.Multer.File) {
     const currentUser = await this.userModel.findOne(user);
+    if (currentUser.avatar) {
+      try {
+        await this.imageService.remove(
+          currentUser.avatar,
+          ImageInterceptorEnum.IMAGE_AVATAR,
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    }
     const image = await this.imageService.create(
       file.filename,
       currentUser._id,
