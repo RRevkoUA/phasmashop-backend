@@ -6,12 +6,15 @@ import {
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, User } from 'src/common/schemas';
-import { Document, Model } from 'mongoose';
+import { Document, Model, Types } from 'mongoose';
+import { ImageService } from 'src/image/image.service';
+import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
+    private readonly imageService: ImageService,
   ) {}
   async create(createProductDto: CreateProductDto, user: User & Document) {
     try {
@@ -73,6 +76,45 @@ export class ProductService {
     }
   }
 
+  async addImages(
+    id: string,
+    files: Array<Express.Multer.File>,
+    user: User & Document,
+  ) {
+    const imageIds: Types.ObjectId[] = [];
+    const product = await this.productModel.findById(id);
+    if (!product) {
+      this.imageService.removeByFilenames(
+        files.map((file) => file.filename),
+        ImageInterceptorEnum.IMAGE_PRODUCT,
+      );
+      throw new NotFoundException('Product not found');
+    }
+    if (product.authorId.toString() !== user._id.toString()) {
+      this.imageService.removeByFilenames(
+        files.map((file) => file.filename),
+        ImageInterceptorEnum.IMAGE_PRODUCT,
+      );
+      throw new ForbiddenException(
+        'You are not allowed to update this product',
+      );
+    }
+
+    this.#removeImages(product);
+    for (const file of files) {
+      const imageId = await this.imageService.create(
+        file.filename,
+        new Types.ObjectId(user._id as string),
+      );
+      imageIds.push(imageId._id);
+    }
+    return await this.productModel.findByIdAndUpdate(
+      id,
+      { $push: { images: { $each: imageIds } } },
+      { new: true },
+    );
+  }
+
   async remove(id: string, user: User & Document) {
     const product = await this.productModel.findById(id);
     if (!product) {
@@ -83,6 +125,17 @@ export class ProductService {
         'You are not allowed to remove this product',
       );
     }
+    this.#removeImages(product);
     return await this.productModel.findByIdAndDelete(id);
   }
+
+  #removeImages = async (product: Product & Document) => {
+    if (product.images.length) {
+      await this.productModel.findByIdAndUpdate(product._id, { images: [] });
+      await this.imageService.removeMany(
+        product.images,
+        ImageInterceptorEnum.IMAGE_PRODUCT,
+      );
+    }
+  };
 }
