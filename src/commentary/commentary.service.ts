@@ -21,8 +21,6 @@ export class CommentaryService {
     createCommentaryDto: CreateCommentaryDto,
     user: User & Document,
   ) {
-    console.log(createCommentaryDto);
-    // TODO :: Implement adding a Images to commentary.
     try {
       const comment = await this.commentModel.create({
         text: createCommentaryDto.text,
