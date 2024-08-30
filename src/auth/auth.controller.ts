@@ -1,23 +1,11 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  HttpStatus,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SigninAuthDto, SignupAuthDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Tokens } from './types';
 import { User } from 'src/common/schemas/User.schema';
-import {
-  ApiAccessAuth,
-  ApiRefreshAuth,
-  GetUser,
-  SetCookie,
-} from '../common/decorator';
-import { JwtGuard, JwtRefreshGuard } from '../common/guard';
+import { GetUser, Role, SetCookie } from '../common/decorator';
+import { RoleEnum } from 'src/common/enums';
 @ApiTags('Auth')
 @Controller('')
 export class AuthController {
@@ -49,16 +37,14 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.USER)
   @Post('logout')
   logout(@GetUser() user: User) {
     return this.authService.logout(user);
   }
 
   @HttpCode(HttpStatus.OK)
-  @ApiRefreshAuth()
-  @UseGuards(JwtRefreshGuard)
+  @Role(RoleEnum.USER)
   @Post('refresh')
   async refresh(@GetUser() user: User, @SetCookie() set_cookie) {
     const tokens: Tokens = await this.authService.refreshTokens(

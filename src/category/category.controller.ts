@@ -6,13 +6,12 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto';
-import { JwtGuard } from 'src/common/guard';
-import { ApiAccessAuth } from 'src/common/decorator';
+import { Role } from 'src/common/decorator';
+import { RoleEnum } from 'src/common/enums';
 
 @ApiTags('Category')
 @Controller('category')
@@ -28,15 +27,13 @@ export class CategoryController {
     return await this.categoryService.findOne(categoryName);
   }
 
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.ADMIN)
   @Post()
   async create(@Body() dto: CreateCategoryDto) {
     return await this.categoryService.create(dto);
   }
 
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.ADMIN)
   @Patch(':category')
   async update(
     @Param('category') categoryName: string,
@@ -45,8 +42,7 @@ export class CategoryController {
     return await this.categoryService.update(categoryName, dto);
   }
 
-  @ApiAccessAuth()
-  @UseGuards(JwtGuard)
+  @Role(RoleEnum.ADMIN)
   @Delete(':category')
   remove(@Param('category') categoryName: string) {
     return this.categoryService.remove(categoryName);

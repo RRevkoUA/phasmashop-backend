@@ -6,18 +6,16 @@ import {
   Patch,
   Param,
   Delete,
-  UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
-import { ApiAccessAuth, GetUser } from 'src/common/decorator';
-import { JwtGuard } from 'src/common/guard';
+import { GetUser, Role } from 'src/common/decorator';
 import { User } from 'src/common/schemas';
 import { Document } from 'mongoose';
+import { RoleEnum } from 'src/common/enums';
 
-@UseGuards(JwtGuard)
-@ApiAccessAuth()
+@Role(RoleEnum.USER)
 @ApiTags('Order')
 @Controller('order')
 export class OrderController {
