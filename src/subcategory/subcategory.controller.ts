@@ -15,27 +15,27 @@ import { RoleEnum } from 'src/common/enums';
 import { Role } from 'src/common/decorator';
 
 @ApiTags('Subcategory')
-@Role(RoleEnum.ADMIN)
 @Controller('subcategory')
 export class SubcategoryController {
   constructor(private readonly subcategoryService: SubcategoryService) {}
 
+  @Role(RoleEnum.ADMIN)
   @Post()
   create(@Body() createSubcategoryDto: CreateSubcategoryDto) {
     return this.subcategoryService.create(createSubcategoryDto);
   }
 
-  @Role(RoleEnum.USER)
   @Get()
   findAll() {
     return this.subcategoryService.findAll();
   }
-  @Role(RoleEnum.USER)
+
   @Get(':subcategory')
   findOne(@Param('subcategory') subcategoryName: string) {
     return this.subcategoryService.findOne(subcategoryName);
   }
 
+  @Role(RoleEnum.ADMIN)
   @Patch(':subcategory')
   update(
     @Param('subcategory') subcategoryName: string,
@@ -47,6 +47,7 @@ export class SubcategoryController {
     );
   }
 
+  @Role(RoleEnum.ADMIN)
   @Delete(':subcategory')
   remove(@Param('subcategory') subcategoryName: string) {
     return this.subcategoryService.remove(subcategoryName);
