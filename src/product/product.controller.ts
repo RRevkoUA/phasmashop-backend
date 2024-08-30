@@ -6,12 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './dto';
 import { ApiTags } from '@nestjs/swagger';
 import { ImageInterceptorEnum } from 'src/common/enums';
-import { GetUser, Role } from 'src/common/decorator';
+import { GetUser, ImageInterceptor, Role } from 'src/common/decorator';
 import { Document } from 'mongoose';
 import { User } from 'src/common/schemas';
 import { RoleEnum } from 'src/common/enums';
@@ -21,7 +22,7 @@ import { RoleEnum } from 'src/common/enums';
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
-  @Role(RoleEnum.MODERATOR)
+  @Role(RoleEnum.USER)
   @Post()
   create(
     @Body() createProductDto: CreateProductDto,
@@ -40,7 +41,7 @@ export class ProductController {
     return this.productService.findOneById(id);
   }
 
-  @Role(RoleEnum.MODERATOR)
+  @Role(RoleEnum.USER)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -50,6 +51,7 @@ export class ProductController {
     return this.productService.update(id, updateProductDto, user);
   }
 
+  @Role(RoleEnum.USER)
   @Patch(':id/images')
   @ImageInterceptor(ImageInterceptorEnum.IMAGE_PRODUCT)
   addImages(
@@ -60,7 +62,7 @@ export class ProductController {
     return this.productService.addImages(id, files, user);
   }
 
-  @Role(RoleEnum.MODERATOR)
+  @Role(RoleEnum.USER)
   @Delete(':id')
   remove(@Param('id') id: string, @GetUser() user: User & Document) {
     return this.productService.remove(id, user);
