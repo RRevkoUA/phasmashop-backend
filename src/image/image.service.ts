@@ -33,4 +33,36 @@ export class ImageService {
     }
     throw new NotFoundException('Image not Found');
   }
+
+  async removeMany(ids: Types.ObjectId[], subpath: ImageInterceptorEnum) {
+    console.log(ids);
+    const images = await this.imageModel.find({ _id: { $in: ids } });
+    if (images.length) {
+      console.log(images);
+      const path = `${process.cwd()}/images/${subpath}`;
+      try {
+        images.forEach((image) => {
+          fs.unlinkSync(`${path}/${image.filename}`);
+        });
+        console.log(ids);
+        return await this.imageModel.deleteMany({ _id: { $in: ids } });
+      } catch (err) {
+        throw new NotFoundException('Images not Found');
+      }
+    }
+  }
+
+  // Function for removing images by filenames. Not created in DB yet.
+  async removeByFilenames(filenames: string[], subpath: ImageInterceptorEnum) {
+    const path = `${process.cwd()}/images/${subpath}`;
+
+    try {
+      return filenames.forEach((filename) =>
+        fs.unlinkSync(`${path}/${filename}`),
+      );
+    } catch (err) {
+      console.error(err);
+      throw new NotFoundException('Images not Found');
+    }
+  }
 }
