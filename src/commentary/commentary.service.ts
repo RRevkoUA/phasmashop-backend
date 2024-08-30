@@ -98,7 +98,7 @@ export class CommentaryService {
       );
     }
 
-    await this.#removeImages(comment._id, comment.images);
+    await this.#removeImages(comment);
     for (const file of files) {
       const imageId = await this.imageService.create(
         file.filename,
@@ -106,7 +106,6 @@ export class CommentaryService {
       );
       imageIds.push(imageId._id);
     }
-    console.log(imageIds);
 
     return await this.commentModel.findByIdAndUpdate(
       id,
@@ -125,7 +124,7 @@ export class CommentaryService {
       );
     }
     try {
-      await this.#removeImages(comment._id, comment.images);
+      await this.#removeImages(comment);
       return await this.commentModel.findByIdAndDelete(id);
     } catch (error) {
       console.error(error);
@@ -133,11 +132,11 @@ export class CommentaryService {
     }
   }
 
-  #removeImages = async (id: Types.ObjectId, images: Types.ObjectId[]) => {
-    if (images.length) {
-      await this.commentModel.findByIdAndUpdate(id, { images: [] });
+  #removeImages = async (comment) => {
+    if (comment.images.length) {
+      await this.commentModel.findByIdAndUpdate(comment._id, { images: [] });
       await this.imageService.removeMany(
-        images,
+        comment.images,
         ImageInterceptorEnum.IMAGE_COMMENTARY,
       );
     }
