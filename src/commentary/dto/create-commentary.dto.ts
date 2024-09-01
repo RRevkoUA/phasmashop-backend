@@ -12,10 +12,18 @@ export class CreateCommentaryDto {
   text: string;
 
   @ApiProperty({
-    example: ['image1', 'image2'],
+    example: [],
     description: 'The images of the commentary',
     required: false,
-    default: [],
+    default: ['image1', 'image2'],
   })
   images?: string[];
+
+  @ApiProperty({
+    example: 'Product',
+    description: 'The product of the commentary',
+    required: true,
+    default: 'Product',
+  })
+  product: string;
 }

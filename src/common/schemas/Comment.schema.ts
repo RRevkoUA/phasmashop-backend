@@ -10,6 +10,9 @@ export class Comment {
   @Prop({ type: Types.ObjectId, ref: 'User' })
   author: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Product' })
+  product: Types.ObjectId;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Image' }] })
   images: Types.ObjectId[];
 }
