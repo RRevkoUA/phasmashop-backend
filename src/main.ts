@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
 import { DocumentBuilder } from '@nestjs/swagger/dist/document-builder';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import {
   EncryptionMiddleware,
@@ -44,5 +44,13 @@ async function bootstrap() {
   app.useLogger(logLevels);
 
   await app.listen(process.env.APP_PORT);
+  Logger.log(
+    `Server running on http://127.0.0.1:${process.env.APP_PORT}`,
+    'NestApplication',
+  );
+  Logger.log(
+    `Swagger running on http://127.0.0.1:${process.env.APP_PORT}/${process.env.APP_SWAGGER_PATH}`,
+    'NestApplication',
+  );
 }
 bootstrap();
