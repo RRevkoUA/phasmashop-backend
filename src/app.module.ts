@@ -15,6 +15,7 @@ import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { EncryptionService } from './encryption/encryption.service';
 import { EncryptionModule } from './encryption/encryption.module';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { EncryptionModule } from './encryption/encryption.module';
     CommentaryModule,
     ProductModule,
     OrderModule,
+    TagModule,
     EncryptionModule,
   ],
   controllers: [AppController],

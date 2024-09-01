@@ -16,4 +16,4 @@ import { Tag, TagSchema } from 'src/common/schemas';
   controllers: [TagController],
   providers: [TagService],
 })
-export class CharacteristicModule {}
+export class TagModule {}
