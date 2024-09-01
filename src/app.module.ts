@@ -13,6 +13,8 @@ import { CharacteristicModule } from './characteristic/characteristic.module';
 import { CommentaryModule } from './commentary/commentary.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
+import { EncryptionService } from './encryption/encryption.service';
+import { EncryptionModule } from './encryption/encryption.module';
 
 @Module({
   imports: [
@@ -36,8 +38,9 @@ import { OrderModule } from './order/order.module';
     CommentaryModule,
     ProductModule,
     OrderModule,
+    EncryptionModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, EncryptionService],
 })
 export class AppModule {}
