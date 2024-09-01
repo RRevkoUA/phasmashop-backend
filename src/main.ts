@@ -11,6 +11,7 @@ import {
 import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
+  const logLevels = JSON.parse(process.env.LOG_LEVELS || '[]');
   const config = new DocumentBuilder()
     .setTitle('Phasmashop swagger api')
     .setDescription('pet project api testing, and representation')
@@ -40,6 +41,7 @@ async function bootstrap() {
 
   app.use(new EncryptionMiddleware().use);
   app.use(new DecryptionMiddleware().use);
+  app.useLogger(logLevels);
 
   await app.listen(process.env.APP_PORT);
 }
