@@ -60,12 +60,10 @@ export class SubcategoryService {
     updateSubcategoryDto: UpdateSubcategoryDto,
   ) {
     const subcategory: any = await this.findOne(subcategoryName);
-    console.log(subcategory);
     if (updateSubcategoryDto.category) {
       const category: any = await this.categoryService.findOne(
         updateSubcategoryDto.category,
       );
-      console.log(category);
       this.categoryService.removeSubcategory(
         subcategory.category._id,
         subcategory._id,
