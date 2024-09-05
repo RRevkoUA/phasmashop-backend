@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsString, Min } from 'class-validator';
 import { DeliveryTypes } from 'src/common/enums';
 import { DeliveryStatus } from 'src/common/enums/delivery-status.enum';
 
@@ -53,6 +53,7 @@ export class CreateOrderDto {
     description: 'The total price of products',
     required: true,
   })
+  @Min(1)
   @IsNumber()
   price: number;
 }
