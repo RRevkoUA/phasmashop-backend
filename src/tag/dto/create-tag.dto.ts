@@ -12,4 +12,15 @@ export class CreateTagDto {
   @MaxLength(15)
   @IsString()
   name: string;
+
+  @ApiProperty({
+    example: 'Tag description',
+    description: 'The description of the tag',
+    required: true,
+    default: 'Tag description',
+  })
+  @MinLength(3)
+  @MaxLength(30)
+  @IsString()
+  description: string;
 }
