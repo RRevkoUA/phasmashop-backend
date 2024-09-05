@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   createCipheriv,
   randomBytes,
@@ -10,6 +10,7 @@ import {
 export class EncryptionService {
   private readonly algorithm: string;
   private readonly key: Buffer;
+  readonly logger = new Logger(EncryptionService.name);
   constructor() {
     this.algorithm = 'aes-256-ctr';
     this.key = createHash('sha256')
@@ -18,6 +19,8 @@ export class EncryptionService {
       .subarray(0, 32);
   }
   async encrypt(data: string): Promise<string> {
+    this.logger.verbose('Encrypting data...');
+    this.logger.verbose('data: ' + data);
     const iv = randomBytes(16);
     const cipher = createCipheriv(this.algorithm, this.key, iv);
     const result = Buffer.concat([iv, cipher.update(data), cipher.final()]);
@@ -25,6 +28,8 @@ export class EncryptionService {
   }
 
   async decrypt(encryptedData: string): Promise<string> {
+    this.logger.verbose('Decrypting data...');
+    this.logger.verbose('encryptedData: ' + encryptedData);
     const data = Buffer.from(encryptedData, 'hex');
     const iv = data.subarray(0, 16);
     const encryptedText = data.subarray(16);
