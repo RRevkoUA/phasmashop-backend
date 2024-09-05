@@ -4,11 +4,9 @@ import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
 import { DocumentBuilder } from '@nestjs/swagger/dist/document-builder';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
-import {
-  EncryptionMiddleware,
-  DecryptionMiddleware,
-} from './common/middlewares';
+import { DecryptionMiddleware } from './common/middlewares';
 import * as bodyParser from 'body-parser';
+import { EncryptionInterceptor } from './common/interceptor/encryption.interceptor';
 
 async function bootstrap() {
   const logLevels = JSON.parse(process.env.LOG_LEVELS || '[]');
@@ -39,7 +37,8 @@ async function bootstrap() {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  app.use(new EncryptionMiddleware().use);
+  app.useGlobalInterceptors(new EncryptionInterceptor());
+
   app.use(new DecryptionMiddleware().use);
   app.useLogger(logLevels);
 
