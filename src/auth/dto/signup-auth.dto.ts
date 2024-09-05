@@ -13,6 +13,11 @@ import { RoleEnum } from 'src/common/enums';
 
 export class SignupAuthDto {
   @IsString()
+  @MinLength(4)
+  @MaxLength(16)
+  @Matches(/^[a-zA-Z0-9]*$/, {
+    message: 'only letters and numbers allowed',
+  })
   @ApiProperty({
     default: 'user',
   })
