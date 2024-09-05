@@ -20,5 +20,5 @@ export class CreateCharacteristicDto {
     default: ['value1', 'value2'],
   })
   @IsArray()
-  enum?: string[];
+  possibleValue?: string[];
 }
