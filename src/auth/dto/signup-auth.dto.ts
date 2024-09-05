@@ -5,6 +5,9 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  Matches,
+  MaxLength,
+  MinLength,
 } from 'class-validator';
 import { RoleEnum } from 'src/common/enums';
 
@@ -22,6 +25,11 @@ export class SignupAuthDto {
   email: string;
 
   @IsString()
+  @MinLength(8)
+  @MaxLength(20)
+  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+    message: 'password too weak',
+  })
   @ApiProperty({
     default: 'password',
   })
