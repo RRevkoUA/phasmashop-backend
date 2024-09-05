@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { SigninAuthDto, SignupAuthDto } from './dto';
@@ -10,6 +10,7 @@ import { Tokens } from './types';
 
 @Injectable()
 export class AuthService {
+  readonly logger = new Logger(AuthService.name);
   constructor(
     private jwt: JwtService,
     @InjectModel(User.name) private userModel: Model<User>,
@@ -28,9 +29,11 @@ export class AuthService {
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
+        this.logger.error(`${res} is already in use`);
         throw new ForbiddenException(`${res} is already in use`);
       }
-      throw err;
+      this.logger.error(err);
+      throw new ForbiddenException(err);
     }
   }
 
@@ -47,11 +50,13 @@ export class AuthService {
       });
     }
     if (!user) {
+      this.logger.error('Credentials incorrect');
       throw new ForbiddenException('Credentials incorrect');
     }
     const isCorrectPassword = await argon.verify(user.hash, dto.password);
 
     if (!isCorrectPassword) {
+      this.logger.error('Credentials incorrect');
       throw new ForbiddenException('Credentials incorrect');
     }
     const tokens = await this.signTokens(user._id, user.email);
@@ -66,10 +71,12 @@ export class AuthService {
   async refreshTokens(user: User, refresh_token: string) {
     const userObj = await this.userModel.findOne({ email: user.email });
     if (!userObj) {
+      this.logger.error('Invalid user');
       throw new ForbiddenException('Invalid user');
     }
     const rtMaches = await argon.verify(userObj.hashedRt, refresh_token);
     if (!rtMaches) {
+      this.logger.error('Invalid refresh token');
       throw new ForbiddenException('Invalid refresh token');
     }
     const tokens = await this.signTokens(userObj._id, user.email);
