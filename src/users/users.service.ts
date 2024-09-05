@@ -21,22 +21,7 @@ export class UsersService {
   ) {}
 
   async findAll() {
-    const usersArr: User[] = [];
-    const cursor = this.userModel.find().populate('avatar').cursor();
-    for (
-      let doc = await cursor.next();
-      doc != null;
-      doc = await cursor.next()
-    ) {
-      doc.hash = undefined;
-      doc.hashedRt = undefined;
-      usersArr.push(doc);
-      // XXX :: Fuse for no more objects, than 20. Will fix, in pages update
-      if (usersArr.length >= 20) {
-        break;
-      }
-    }
-    return usersArr;
+    return await this.userModel.find().populate('avatar');
   }
 
   async findUser(username: string) {
