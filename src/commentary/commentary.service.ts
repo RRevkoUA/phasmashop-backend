@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCommentaryDto, UpdateCommentaryDto } from './dto';
@@ -13,6 +14,7 @@ import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class CommentaryService {
+  private readonly logger = new Logger(CommentaryService.name);
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     private readonly imageService: ImageService,
@@ -28,7 +30,7 @@ export class CommentaryService {
       });
       return comment;
     } catch (error) {
-      console.error(error);
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }
@@ -40,6 +42,7 @@ export class CommentaryService {
   async findOne(id: string) {
     const comment = await this.commentModel.findById(id);
     if (!comment) {
+      this.logger.error('Comment not found');
       throw new NotFoundException('Comment not found');
     }
     return comment;
@@ -52,9 +55,11 @@ export class CommentaryService {
   ) {
     const comment = await this.commentModel.findById(id);
     if (!comment) {
+      this.logger.error('Comment not found');
       throw new NotFoundException('Comment not found');
     }
     if (comment.author.toString() !== user._id.toString()) {
+      this.logger.error('You are not allowed to update this comment');
       throw new ForbiddenException(
         'You are not allowed to update this comment',
       );
@@ -67,7 +72,7 @@ export class CommentaryService {
       );
       return updatedComment;
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new ForbiddenException('Something went wrong');
     }
   }
@@ -84,6 +89,7 @@ export class CommentaryService {
         files.map((file) => file.filename),
         ImageInterceptorEnum.IMAGE_COMMENTARY,
       );
+      this.logger.error('Comment not found');
       throw new NotFoundException('Comment not found');
     }
     if (comment.author.toString() !== user._id.toString()) {
@@ -91,6 +97,7 @@ export class CommentaryService {
         files.map((file) => file.filename),
         ImageInterceptorEnum.IMAGE_COMMENTARY,
       );
+      this.logger.error('You are not allowed to update this comment');
       throw new ForbiddenException(
         'You are not allowed to update this comment',
       );
@@ -114,9 +121,11 @@ export class CommentaryService {
   async remove(id: string, user: User & Document) {
     const comment = await this.commentModel.findById(id);
     if (!comment) {
+      this.logger.error('Comment not found');
       throw new NotFoundException('Comment not found');
     }
     if (comment.author.toString() !== user._id.toString()) {
+      this.logger.error('You are not allowed to remove this comment');
       throw new ForbiddenException(
         'You are not allowed to remove this comment',
       );
@@ -125,7 +134,7 @@ export class CommentaryService {
       await this.#removeImages(comment);
       return await this.commentModel.findByIdAndDelete(id);
     } catch (error) {
-      console.error(error);
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }
