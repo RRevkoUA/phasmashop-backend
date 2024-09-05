@@ -16,6 +16,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { User } from 'src/common/schemas/User.schema';
 import { GetUser, ImageInterceptor, Role } from 'src/common/decorator';
 import { ImageInterceptorEnum, RoleEnum } from 'src/common/enums';
+import { Document } from 'mongoose';
 
 @ApiTags('Users')
 @Role(RoleEnum.USER)
@@ -41,7 +42,7 @@ export class UsersController {
   }
 
   @Patch('me')
-  updateUser(@Body() dto: UpdateUserDto, @GetUser() user: User) {
+  updateUser(@Body() dto: UpdateUserDto, @GetUser() user: User & Document) {
     return this.usersService.update(dto, user);
   }
 
