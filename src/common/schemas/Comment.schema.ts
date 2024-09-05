@@ -4,7 +4,7 @@ import { Types } from 'mongoose';
 @Schema({ timestamps: true })
 export class Comment {
   // TODO :: Add validation for text
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 3, maxlength: 250 })
   text: string;
 
   @Prop({ type: Types.ObjectId, ref: 'User' })
