@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateProductDto, UpdateProductDto } from './dto';
@@ -12,6 +13,7 @@ import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class ProductService {
+  readonly logger = new Logger(ProductService.name);
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     private readonly imageService: ImageService,
@@ -22,9 +24,10 @@ export class ProductService {
         ...createProductDto,
         authorId: user._id,
       });
+      this.logger.verbose('Product created');
       return product;
     } catch (error) {
-      console.error(error);
+      this.logger.error('Something went wrong\n' + error);
       throw new ForbiddenException('Something went wrong\n' + error);
     }
   }
@@ -36,6 +39,7 @@ export class ProductService {
   async findOneByArticle(article: string) {
     const product = await this.productModel.findOne({ article });
     if (!product) {
+      this.logger.error('Product not found');
       throw new ForbiddenException('Product not found');
     }
     return product;
@@ -44,6 +48,7 @@ export class ProductService {
   async findOneById(id: string) {
     const product = await this.productModel.findById(id);
     if (!product) {
+      this.logger.error('Product not found');
       throw new ForbiddenException('Product not found');
     }
     return product;
@@ -56,9 +61,11 @@ export class ProductService {
   ) {
     const product = await this.productModel.findById(id);
     if (!product) {
+      this.logger.error('Product not found');
       throw new NotFoundException('Product not found');
     }
     if (product.authorId?.toString() !== user._id.toString()) {
+      this.logger.error('You are not allowed to update this product');
       throw new ForbiddenException(
         'You are not allowed to update this product',
       );
@@ -71,7 +78,7 @@ export class ProductService {
       );
       return updatedProduct;
     } catch (error) {
-      console.error(error);
+      this.logger.error('Something went wrong' + error);
       throw new ForbiddenException('Something went wrong' + error);
     }
   }
@@ -88,6 +95,7 @@ export class ProductService {
         files.map((file) => file.filename),
         ImageInterceptorEnum.IMAGE_PRODUCT,
       );
+      this.logger.error('Product not found');
       throw new NotFoundException('Product not found');
     }
     if (product.authorId.toString() !== user._id.toString()) {
@@ -95,6 +103,7 @@ export class ProductService {
         files.map((file) => file.filename),
         ImageInterceptorEnum.IMAGE_PRODUCT,
       );
+      this.logger.error('You are not allowed to update this product');
       throw new ForbiddenException(
         'You are not allowed to update this product',
       );
@@ -118,9 +127,11 @@ export class ProductService {
   async remove(id: string, user: User & Document) {
     const product = await this.productModel.findById(id);
     if (!product) {
+      this.logger.error('Product not found');
       throw new NotFoundException('Product not found');
     }
     if (product.authorId.toString() !== user._id.toString()) {
+      this.logger.error('You are not allowed to remove this product');
       throw new ForbiddenException(
         'You are not allowed to remove this product',
       );
