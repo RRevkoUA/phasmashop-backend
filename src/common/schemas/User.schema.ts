@@ -22,6 +22,9 @@ export class User {
   @Prop({ enum: RoleEnum, default: RoleEnum.USER })
   role: string;
 
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Order' }] })
+  orders?: Types.ObjectId[];
+
   @Prop({ type: Types.ObjectId, ref: 'Image' })
   avatar?: Types.ObjectId;
 }
