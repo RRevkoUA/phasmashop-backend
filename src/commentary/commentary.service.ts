@@ -11,6 +11,7 @@ import { Comment, User } from 'src/common/schemas';
 import { Model } from 'mongoose';
 import { ImageService } from 'src/image/image.service';
 import { ImageInterceptorEnum } from 'src/common/enums';
+import { ProductService } from 'src/product/product.service';
 
 @Injectable()
 export class CommentaryService {
@@ -18,12 +19,14 @@ export class CommentaryService {
   constructor(
     @InjectModel(Comment.name) private commentModel: Model<Comment>,
     private readonly imageService: ImageService,
+    private readonly productService: ProductService,
   ) {}
   async create(
     createCommentaryDto: CreateCommentaryDto,
     user: User & Document,
   ) {
     try {
+      await this.productService.findOneById(createCommentaryDto.product);
       const comment = await this.commentModel.create({
         text: createCommentaryDto.text,
         author: user._id,

@@ -18,5 +18,6 @@ import { TagModule } from 'src/tag/tag.module';
   ],
   controllers: [ProductController],
   providers: [ProductService],
+  exports: [ProductService],
 })
 export class ProductModule {}
