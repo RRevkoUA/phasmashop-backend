@@ -8,6 +8,7 @@ import {
   Post,
   UploadedFile,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './dto';
@@ -20,6 +21,7 @@ import { ImageInterceptorEnum, RoleEnum } from 'src/common/enums';
 @Role(RoleEnum.USER)
 @Controller('users')
 export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
   constructor(private readonly usersService: UsersService) {}
 
   @Role(RoleEnum.MODERATOR)
@@ -55,6 +57,7 @@ export class UsersController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     if (!file) {
+      this.logger.error('No file provided');
       throw new ForbiddenException('No file provided');
     }
     return this.usersService.uploadAvatar(user, file);
