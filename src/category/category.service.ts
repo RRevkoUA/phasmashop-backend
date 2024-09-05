@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +14,7 @@ import { SubcategoryService } from 'src/subcategory/subcategory.service';
 
 @Injectable()
 export class CategoryService {
+  readonly logger = new Logger(CategoryService.name);
   constructor(
     @InjectModel(Category.name) private categoryModel: Model<Category>,
     @Inject(forwardRef(() => SubcategoryService))
@@ -25,6 +27,7 @@ export class CategoryService {
   async findOne(categoryName: string) {
     const category = await this.categoryModel.findOne({ name: categoryName });
     if (!category) {
+      this.logger.error('Category not Found');
       throw new NotFoundException('Category not Found');
     }
     return category;
@@ -33,6 +36,7 @@ export class CategoryService {
   async create(dto: CreateCategoryDto) {
     const category = await this.categoryModel.findOne({ name: dto.name });
     if (category) {
+      this.logger.error('Category already exists');
       throw new ForbiddenException('Category already exists');
     }
     return await this.categoryModel.create(dto);

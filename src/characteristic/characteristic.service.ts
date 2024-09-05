@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateCharacteristicDto, UpdateCharacteristicDto } from './dto';
@@ -10,6 +11,7 @@ import { Characteristic } from 'src/common/schemas';
 
 @Injectable()
 export class CharacteristicService {
+  readonly logger = new Logger(CharacteristicService.name);
   constructor(
     @InjectModel(Characteristic.name)
     private characteristicModel: Model<Characteristic>,
@@ -20,9 +22,10 @@ export class CharacteristicService {
       return await this.characteristicModel.create(createCharacteristicDto);
     } catch (error) {
       if (error.code === 11000) {
+        this.logger.error('Characteristic already exists');
         throw new ForbiddenException('Characteristic already exists');
       }
-      console.error(error);
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }
@@ -36,6 +39,7 @@ export class CharacteristicService {
       name: characteristicName,
     });
     if (!characteristic) {
+      this.logger.error('Characteristic not found');
       throw new NotFoundException('Characteristic not found');
     }
     return characteristic;
@@ -54,8 +58,10 @@ export class CharacteristicService {
       );
     } catch (error) {
       if (error.status === 404) {
+        this.logger.error('Characteristic not found');
         throw new NotFoundException(error.message);
       }
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }
@@ -68,8 +74,10 @@ export class CharacteristicService {
       );
     } catch (error) {
       if (error.status === 404) {
+        this.logger.error('Characteristic not found');
         throw new NotFoundException(error.message);
       }
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }

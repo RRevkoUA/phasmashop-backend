@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Image } from 'src/common/schemas';
@@ -7,6 +7,7 @@ import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class ImageService {
+  readonly logger = new Logger(ImageService.name);
   constructor(@InjectModel(Image.name) private imageModel: Model<Image>) {}
   async create(filename: string, author?: Types.ObjectId) {
     return await this.imageModel.create({ filename, author });
@@ -15,6 +16,7 @@ export class ImageService {
   async findOne(id: Types.ObjectId) {
     const image = await this.imageModel.findOne({ _id: id });
     if (!image) {
+      this.logger.error('Image not Found');
       throw new NotFoundException('Image not Found');
     }
     return image;
@@ -28,7 +30,7 @@ export class ImageService {
         fs.unlinkSync(path);
         return await this.imageModel.findByIdAndDelete(image._id);
       } catch (err) {
-        console.error(err);
+        this.logger.error(err);
       }
     }
     throw new NotFoundException('Image not Found');
@@ -44,7 +46,7 @@ export class ImageService {
         });
         return await this.imageModel.deleteMany({ _id: { $in: ids } });
       } catch (err) {
-        console.error(err);
+        this.logger.error(err);
         throw new NotFoundException('Images not Found');
       }
     }
@@ -59,7 +61,7 @@ export class ImageService {
         fs.unlinkSync(`${path}/${filename}`),
       );
     } catch (err) {
-      console.error(err);
+      this.logger.error(err);
       throw new NotFoundException('Images not Found');
     }
   }

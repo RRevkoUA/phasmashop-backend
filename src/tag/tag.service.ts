@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTagDto, UpdateTagDto } from './dto';
@@ -10,6 +11,7 @@ import { Tag } from 'src/common/schemas';
 
 @Injectable()
 export class TagService {
+  private readonly logger = new Logger(TagService.name);
   constructor(
     @InjectModel(Tag.name)
     private tagModel: Model<Tag>,
@@ -20,9 +22,11 @@ export class TagService {
       return await this.tagModel.create(createTagDto);
     } catch (error) {
       if (error.code === 11000) {
+        this.logger.error('Tag already exists');
         throw new ForbiddenException('Tag already exists');
       }
       console.error(error);
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }
@@ -36,6 +40,7 @@ export class TagService {
       name: tagName,
     });
     if (!tag) {
+      this.logger.error('Tag not found');
       throw new NotFoundException('Tag not found');
     }
     return tag;
@@ -51,6 +56,7 @@ export class TagService {
       if (error.status === 404) {
         throw new NotFoundException(error.message);
       }
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }
@@ -63,6 +69,7 @@ export class TagService {
       if (error.status === 404) {
         throw new NotFoundException(error.message);
       }
+      this.logger.error('Something went wrong');
       throw new ForbiddenException('Something went wrong');
     }
   }

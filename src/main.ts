@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger/dist/swagger-module';
 import { DocumentBuilder } from '@nestjs/swagger/dist/document-builder';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import {
   EncryptionMiddleware,
@@ -11,6 +11,7 @@ import {
 import * as bodyParser from 'body-parser';
 
 async function bootstrap() {
+  const logLevels = JSON.parse(process.env.LOG_LEVELS || '[]');
   const config = new DocumentBuilder()
     .setTitle('Phasmashop swagger api')
     .setDescription('pet project api testing, and representation')
@@ -40,7 +41,16 @@ async function bootstrap() {
 
   app.use(new EncryptionMiddleware().use);
   app.use(new DecryptionMiddleware().use);
+  app.useLogger(logLevels);
 
   await app.listen(process.env.APP_PORT);
+  Logger.log(
+    `Server running on http://127.0.0.1:${process.env.APP_PORT}`,
+    'NestApplication',
+  );
+  Logger.log(
+    `Swagger running on http://127.0.0.1:${process.env.APP_PORT}/${process.env.APP_SWAGGER_PATH}`,
+    'NestApplication',
+  );
 }
 bootstrap();

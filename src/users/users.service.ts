@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -13,6 +14,7 @@ import { ImageInterceptorEnum } from 'src/common/enums';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
   constructor(
     @InjectModel(User.name) private userModel: Model<User>,
     private imageService: ImageService,
@@ -40,10 +42,12 @@ export class UsersService {
   async findUser(username: string) {
     const user = await this.userModel.findOne({ username }).populate('avatar');
     if (!user) {
+      this.logger.error('User not Found');
       throw new NotFoundException('User not Found');
     }
     user.hash = undefined;
     user.hashedRt = undefined;
+    this.logger.verbose('User found: ' + user.username);
     return user;
   }
 
@@ -59,10 +63,17 @@ export class UsersService {
         updateData.hash = hash;
       }
 
-      await this.userModel.findOneAndUpdate(user, updateData);
+      const updatedUser = await this.userModel.findOneAndUpdate(
+        user,
+        updateData,
+      );
+      updatedUser.hash = undefined;
+      updatedUser.hashedRt = undefined;
+      this.logger.verbose('User updated: ' + updatedUser.username);
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
+        this.logger.error(`${res} is already in use`);
         throw new ForbiddenException(`${res} is already in use`);
       }
     }
@@ -75,6 +86,7 @@ export class UsersService {
         ImageInterceptorEnum.IMAGE_AVATAR,
       );
     }
+    this.logger.verbose('User deleted: ' + user.username);
     return await this.userModel.findOneAndDelete(user);
   }
 
@@ -87,7 +99,7 @@ export class UsersService {
           ImageInterceptorEnum.IMAGE_AVATAR,
         );
       } catch (err) {
-        console.error(err);
+        this.logger.error(err);
       }
     }
     const image = await this.imageService.create(

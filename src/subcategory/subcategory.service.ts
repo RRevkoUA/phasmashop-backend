@@ -3,6 +3,7 @@ import {
   forwardRef,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateSubcategoryDto } from './dto/create-subcategory.dto';
@@ -14,6 +15,7 @@ import { CategoryService } from 'src/category/category.service';
 
 @Injectable()
 export class SubcategoryService {
+  private readonly logger = new Logger(SubcategoryService.name);
   constructor(
     @InjectModel(Subcategory.name)
     private subcategoryModel: Model<Subcategory>,
@@ -21,18 +23,20 @@ export class SubcategoryService {
     private readonly categoryService: CategoryService,
   ) {}
   async create(createSubcategoryDto: CreateSubcategoryDto) {
-    const category: any = await this.categoryService.findOne(
-      createSubcategoryDto.category,
-    );
-
     try {
+      const category: any = await this.categoryService.findOne(
+        createSubcategoryDto.category,
+      );
+
       const subcategory = await this.subcategoryModel.create({
         ...createSubcategoryDto,
         category: category._id,
       });
       this.categoryService.addSubcategory(category, subcategory._id);
+      this.logger.verbose('Subcategory' + subcategory.name + 'created');
       return subcategory;
     } catch (error) {
+      this.logger.error('Subcategory already exists');
       throw new ForbiddenException('Subcategory already exists');
     }
   }
@@ -48,6 +52,7 @@ export class SubcategoryService {
       })
       .populate('category');
     if (!subcategory) {
+      this.logger.error('Subcategory "' + subcategoryName + '" not found');
       throw new NotFoundException(
         'Subcategory "' + subcategoryName + '" not found',
       );
@@ -69,6 +74,7 @@ export class SubcategoryService {
         subcategory._id,
       );
       this.categoryService.addSubcategory(category._id, subcategory._id);
+      this.logger.verbose('Subcategory' + subcategory.name + 'updated');
       delete updateSubcategoryDto.category;
     }
     return await this.subcategoryModel.findOneAndUpdate(
@@ -79,6 +85,7 @@ export class SubcategoryService {
   }
 
   async remove(subcategoryName: string) {
+    this.logger.verbose('Subcategory' + subcategoryName + 'removing');
     const subcategory = await this.findOne(subcategoryName);
     this.categoryService.removeSubcategory(
       subcategory.category._id,
@@ -88,6 +95,7 @@ export class SubcategoryService {
   }
 
   async removeArray(subcategoryId: Types.ObjectId[]) {
+    this.logger.verbose('Subcategory array' + subcategoryId + 'removing');
     await this.subcategoryModel.deleteMany({
       _id: { $in: subcategoryId },
     });
