@@ -4,6 +4,7 @@ import { CommentaryController } from './commentary.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Comment, CommentSchema } from 'src/common/schemas';
 import { ImageModule } from 'src/image/image.module';
+import { ProductModule } from 'src/product/product.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ImageModule } from 'src/image/image.module';
       },
     ]),
     ImageModule,
+    ProductModule,
   ],
   controllers: [CommentaryController],
   providers: [CommentaryService],

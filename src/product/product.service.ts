@@ -10,6 +10,9 @@ import { Product, User } from 'src/common/schemas';
 import { Document, Model, Types } from 'mongoose';
 import { ImageService } from 'src/image/image.service';
 import { ImageInterceptorEnum } from 'src/common/enums';
+import { SubcategoryService } from 'src/subcategory/subcategory.service';
+import { CharacteristicService } from 'src/characteristic/characteristic.service';
+import { TagService } from 'src/tag/tag.service';
 
 @Injectable()
 export class ProductService {
@@ -17,9 +20,28 @@ export class ProductService {
   constructor(
     @InjectModel(Product.name) private productModel: Model<Product>,
     private readonly imageService: ImageService,
+    private readonly subcategoryService: SubcategoryService,
+    private readonly characteristicService: CharacteristicService,
+    private readonly tagService: TagService,
   ) {}
   async create(createProductDto: CreateProductDto, user: User & Document) {
     try {
+      //check for objects validity
+      await this.subcategoryService.findOne(createProductDto.subcategoryId);
+
+      if (createProductDto.characteristics.length) {
+        createProductDto.characteristics.forEach(async (characteristic) => {
+          await this.characteristicService.findOne(
+            characteristic.characteristic,
+          );
+        });
+      }
+      if (createProductDto.tags.length) {
+        createProductDto.tags.forEach(async (tag) => {
+          await this.tagService.findOne(tag);
+        });
+      }
+
       const product = await this.productModel.create({
         ...createProductDto,
         authorId: user._id,
@@ -71,6 +93,22 @@ export class ProductService {
       );
     }
     try {
+      if (updateProductDto.subcategoryId) {
+        await this.subcategoryService.findOne(updateProductDto.subcategoryId);
+      }
+      if (updateProductDto.characteristics.length) {
+        updateProductDto.characteristics.forEach(async (characteristic) => {
+          await this.characteristicService.findOne(
+            characteristic.characteristic,
+          );
+        });
+      }
+      if (updateProductDto.tags.length) {
+        updateProductDto.tags.forEach(async (tag) => {
+          await this.tagService.findOne(tag);
+        });
+      }
+
       const updatedProduct = await this.productModel.findByIdAndUpdate(
         id,
         updateProductDto,

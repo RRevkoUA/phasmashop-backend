@@ -64,24 +64,29 @@ export class SubcategoryService {
     subcategoryName: string,
     updateSubcategoryDto: UpdateSubcategoryDto,
   ) {
-    const subcategory: any = await this.findOne(subcategoryName);
-    if (updateSubcategoryDto.category) {
-      const category: any = await this.categoryService.findOne(
-        updateSubcategoryDto.category,
+    try {
+      const subcategory: any = await this.findOne(subcategoryName);
+      if (updateSubcategoryDto.category) {
+        const category: any = await this.categoryService.findOne(
+          updateSubcategoryDto.category,
+        );
+        this.categoryService.removeSubcategory(
+          subcategory.category._id,
+          subcategory._id,
+        );
+        this.categoryService.addSubcategory(category._id, subcategory._id);
+        this.logger.verbose('Subcategory' + subcategory.name + 'updated');
+        delete updateSubcategoryDto.category;
+      }
+      return await this.subcategoryModel.findOneAndUpdate(
+        subcategory,
+        updateSubcategoryDto,
+        { new: true },
       );
-      this.categoryService.removeSubcategory(
-        subcategory.category._id,
-        subcategory._id,
-      );
-      this.categoryService.addSubcategory(category._id, subcategory._id);
-      this.logger.verbose('Subcategory' + subcategory.name + 'updated');
-      delete updateSubcategoryDto.category;
+    } catch (error) {
+      this.logger.error('Subcategory already exists');
+      throw new ForbiddenException('Subcategory already exists');
     }
-    return await this.subcategoryModel.findOneAndUpdate(
-      subcategory,
-      updateSubcategoryDto,
-      { new: true },
-    );
   }
 
   async remove(subcategoryName: string) {

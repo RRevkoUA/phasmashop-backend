@@ -15,5 +15,6 @@ import { Characteristic, CharacteristicSchema } from 'src/common/schemas';
   ],
   controllers: [CharacteristicController],
   providers: [CharacteristicService],
+  exports: [CharacteristicService],
 })
 export class CharacteristicModule {}

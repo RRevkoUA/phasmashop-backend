@@ -15,5 +15,6 @@ import { Tag, TagSchema } from 'src/common/schemas';
   ],
   controllers: [TagController],
   providers: [TagService],
+  exports: [TagService],
 })
 export class TagModule {}
