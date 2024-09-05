@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsString } from 'class-validator';
+import { IsArray, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateCharacteristicDto {
   @ApiProperty({
@@ -8,6 +8,8 @@ export class CreateCharacteristicDto {
     required: true,
     default: 'Characteristic name',
   })
+  @MinLength(3)
+  @MaxLength(30)
   @IsString()
   name: string;
 
@@ -18,5 +20,5 @@ export class CreateCharacteristicDto {
     default: ['value1', 'value2'],
   })
   @IsArray()
-  enum?: string[];
+  possibleValue?: string[];
 }

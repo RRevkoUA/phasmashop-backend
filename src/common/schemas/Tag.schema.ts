@@ -5,7 +5,7 @@ export class Tag {
   @Prop({ required: true, unique: true })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 3, maxlength: 30 })
   description: string;
 }
 

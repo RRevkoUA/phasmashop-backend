@@ -3,16 +3,16 @@ import { Types } from 'mongoose';
 
 @Schema({ timestamps: true })
 export class Product {
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 10, maxlength: 50 })
   name: string;
 
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, minlength: 10, maxlength: 15 })
   article: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 20, maxlength: 500 })
   description: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, min: 0 })
   stock: number;
 
   @Prop({

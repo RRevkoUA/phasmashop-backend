@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ timestamps: false })
 export class Characteristic {
-  @Prop({ required: true })
+  @Prop({ required: true, minlength: 3, maxlength: 30 })
   name: string;
 
   @Prop({ required: false })

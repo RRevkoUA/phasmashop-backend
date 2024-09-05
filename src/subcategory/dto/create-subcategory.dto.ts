@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class CreateSubcategoryDto {
   @IsString()
+  @MaxLength(50)
+  @MinLength(3)
   @ApiProperty({
     example: 'Subcategory',
     description: 'The name of the subcategory',

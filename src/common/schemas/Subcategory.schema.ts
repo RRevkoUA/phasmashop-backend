@@ -3,7 +3,7 @@ import { Types } from 'mongoose';
 
 @Schema({ timestamps: false })
 export class Subcategory {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true, unique: true, minlength: 3, maxlength: 50 })
   name: string;
 
   @Prop({ required: true })
