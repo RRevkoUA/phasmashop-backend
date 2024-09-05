@@ -8,7 +8,7 @@ export class EncryptionMiddleware implements NestMiddleware {
 
   async use(req: Request, res: Response, next: NextFunction) {
     const encryptionService = new EncryptionService();
-    if (req.body) {
+    if (req.body.length) {
       let encryptedText = req.body;
       try {
         if (req.body instanceof Object) {
