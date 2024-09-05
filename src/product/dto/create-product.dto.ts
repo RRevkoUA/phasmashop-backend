@@ -4,12 +4,18 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Length,
+  Matches,
   Max,
+  MaxLength,
   Min,
+  MinLength,
 } from 'class-validator';
 
 export class CreateProductDto {
   @IsString()
+  @MaxLength(50)
+  @MinLength(10)
   @ApiProperty({
     example: 'Product name',
     description: 'The name of the product',
@@ -19,6 +25,10 @@ export class CreateProductDto {
   name: string;
 
   @IsString()
+  @Length(10, 15)
+  @Matches(/^[a-z0-9-]*$/, {
+    message: 'only lowercase letters and numbers allowed',
+  })
   @ApiProperty({
     example: 'Product article',
     description: 'The article of the product',
@@ -28,6 +38,8 @@ export class CreateProductDto {
   article: string;
 
   @IsString()
+  @MinLength(20)
+  @MaxLength(500)
   @ApiProperty({
     example: 'Product description',
     description: 'The description of the product',
@@ -37,6 +49,7 @@ export class CreateProductDto {
   description: string;
 
   @IsNumber()
+  @Min(0)
   @ApiProperty({
     example: 10,
     description: 'The stock of the product',
