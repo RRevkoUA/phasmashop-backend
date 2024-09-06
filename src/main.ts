@@ -23,7 +23,7 @@ async function bootstrap() {
   SwaggerModule.setup(process.env.APP_SWAGGER_PATH, app, document, {
     swaggerOptions: {
       requestInterceptor: (req) => {
-        req.headers['X-Swagger-Request'] = 'true';
+        req.headers['x-swagger-request'] = 'true';
         return req;
       },
     },
