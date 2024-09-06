@@ -24,6 +24,9 @@ export class EncryptionService {
     const iv = randomBytes(16);
     const cipher = createCipheriv(this.algorithm, this.key, iv);
     const result = Buffer.concat([iv, cipher.update(data), cipher.final()]);
+    Logger.debug('iv: ' + iv.toString('hex'));
+    Logger.debug('key: ' + this.key.toString('hex'));
+    Logger.debug('Encrypted data: ' + result.toString('hex'));
     return result.toString('hex');
   }
 
@@ -38,6 +41,7 @@ export class EncryptionService {
       decipher.update(encryptedText),
       decipher.final(),
     ]);
-    return decrypted.toString('utf8');
+    this.logger.debug('Decrypted data: ' + decrypted.toString('utf8'));
+    return JSON.parse(decrypted.toString('utf8'));
   }
 }

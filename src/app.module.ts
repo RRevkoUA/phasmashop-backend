@@ -13,9 +13,10 @@ import { CharacteristicModule } from './characteristic/characteristic.module';
 import { CommentaryModule } from './commentary/commentary.module';
 import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
-import { EncryptionService } from './encryption/encryption.service';
 import { EncryptionModule } from './encryption/encryption.module';
 import { TagModule } from './tag/tag.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { EncryptionInterceptor } from './common/interceptor/encryption.interceptor';
 
 @Module({
   imports: [
@@ -43,6 +44,12 @@ import { TagModule } from './tag/tag.module';
     EncryptionModule,
   ],
   controllers: [AppController],
-  providers: [AppService, EncryptionService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: EncryptionInterceptor,
+    },
+  ],
 })
 export class AppModule {}
