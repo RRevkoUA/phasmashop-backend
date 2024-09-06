@@ -5,6 +5,7 @@ import { Model } from 'mongoose';
 import { User } from 'src/common/schemas/User.schema';
 import { AuthService } from 'src/auth/auth.service';
 import { SignupAuthDto } from 'src/auth/dto';
+import { RoleEnum } from '../enums';
 
 @Injectable()
 export class UserSeed {
@@ -19,12 +20,7 @@ export class UserSeed {
         email: faker.internet.email(),
         password: faker.internet.password(),
         username: faker.internet.userName(),
-        role: faker.helpers.arrayElement([
-          'Admin',
-          'Moderator',
-          'User',
-          'Guest',
-        ]),
+        role: faker.helpers.arrayElement(Object.values(RoleEnum)),
         phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
       };
       const tokens = await this.authService.signup(dto);
