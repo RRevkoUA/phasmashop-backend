@@ -12,7 +12,7 @@ describe('AuthController E2E Test', () => {
   const host = `http://localhost:${port}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
-    password: faker.internet.password(),
+    password: faker.internet.password({ length: 8, prefix: 'Aa1' }),
     username: faker.internet.userName(),
     phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
   };
