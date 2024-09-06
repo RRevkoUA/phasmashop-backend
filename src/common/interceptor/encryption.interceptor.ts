@@ -17,8 +17,15 @@ export class EncryptionInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const encryptionService = new EncryptionService();
     const res = context.switchToHttp().getResponse();
+    const req = context.switchToHttp().getRequest();
     if (!res) {
       Logger.error('Response object not found');
+    }
+
+    Logger.debug(EncryptionInterceptor.name, req.body);
+    if (req.headers['X-Swagger-Request'] === 'true') {
+      Logger.debug('Swagger request - skipping encryption');
+      return next.handle();
     }
 
     return next.handle().pipe(
