@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   CallHandler,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -11,23 +12,21 @@ import { EncryptionService } from '../../encryption/encryption.service';
 
 @Injectable()
 export class EncryptionInterceptor implements NestInterceptor {
-  encryptionService = new EncryptionService();
   constructor() {}
 
-  async intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Promise<Observable<any>> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const encryptionService = new EncryptionService();
     const res = context.switchToHttp().getResponse();
+    if (!res) {
+      Logger.error('Response object not found');
+    }
 
     return next.handle().pipe(
       map(async (data) => {
-        let encryptedText = data;
         try {
-          if (data instanceof Object) {
-            encryptedText = JSON.stringify(data);
-          }
-          data = await this.encryptionService.encrypt(encryptedText);
+          const encryptedText =
+            typeof data === 'object' ? JSON.stringify(data) : data;
+          return await encryptionService.encrypt(encryptedText);
         } catch (error) {
           console.error(error);
           res
@@ -35,12 +34,8 @@ export class EncryptionInterceptor implements NestInterceptor {
             .json({ error: error.message });
           return throwError(() => new Error(error.message));
         }
-        console.log(data);
-        return data;
       }),
-      catchError((error) => {
-        return throwError(() => new Error(error));
-      }),
+      catchError((error) => throwError(() => new Error(error))),
     );
   }
 }
