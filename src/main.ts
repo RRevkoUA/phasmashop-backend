@@ -20,7 +20,14 @@ async function bootstrap() {
 
   app.setGlobalPrefix(process.env.APP_GLOBAL_PREFIX);
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup(process.env.APP_SWAGGER_PATH, app, document);
+  SwaggerModule.setup(process.env.APP_SWAGGER_PATH, app, document, {
+    swaggerOptions: {
+      requestInterceptor: (req) => {
+        req.headers['X-Swagger-Request'] = 'true';
+        return req;
+      },
+    },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
