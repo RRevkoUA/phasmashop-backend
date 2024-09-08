@@ -6,6 +6,7 @@ import { BadRequestException, Logger, ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import { DecryptionMiddleware } from './common/middlewares';
 import * as bodyParser from 'body-parser';
+import { EncryptionInterceptor } from './common/interceptor/encryption.interceptor';
 
 async function bootstrap() {
   const logLevels = JSON.parse(process.env.LOG_LEVELS || '[]');
@@ -54,6 +55,7 @@ async function bootstrap() {
 
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+  app.useGlobalInterceptors(new EncryptionInterceptor());
   app.use(new DecryptionMiddleware().use);
 
   app.useLogger(logLevels);
