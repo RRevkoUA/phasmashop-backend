@@ -47,6 +47,7 @@ export class UsersService {
 
       if (dto.password) {
         const hash = await argon.hash(dto.password);
+        updateData.password = undefined;
         updateData.hash = hash;
       }
       //checks, if orders are provided, then checks if they are valid
@@ -55,7 +56,6 @@ export class UsersService {
           await this.orderService.findOne(order, user);
         });
       }
-
       const updatedUser = await this.userModel.findByIdAndUpdate(
         user._id,
         updateData,
@@ -63,6 +63,7 @@ export class UsersService {
       updatedUser.hash = undefined;
       updatedUser.hashedRt = undefined;
       this.logger.verbose('User updated: ' + updatedUser.username);
+      return updatedUser;
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
