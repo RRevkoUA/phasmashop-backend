@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import { UserSeed } from 'src/common/seeders/user.seeder';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
+import { RoleEnum } from 'src/common/enums';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
@@ -39,7 +40,6 @@ describe('AuthController E2E Test', () => {
         whitelist: true,
       }),
     );
-    // app.use(cookieParser());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     await app.init();
@@ -143,7 +143,7 @@ describe('AuthController E2E Test', () => {
 
     it('Should get users', async () => {
       try {
-        cookie = await app.get(UserSeed).seed(20);
+        cookie = await app.get(UserSeed).seed(20, [RoleEnum.MODERATOR]);
       } catch (err) {
         console.error(err);
       }
