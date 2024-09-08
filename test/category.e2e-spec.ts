@@ -85,13 +85,41 @@ describe('Category controller E2E Test', () => {
         .withBody(dto)
         .expectStatus(HttpStatus.CREATED);
     });
-    it.todo('Should not create new category, because name is not unique');
-    it.todo(
-      'Should not create new category, because name is have length less than 3',
-    );
-    it.todo(
-      'Should not create new category, because name is have length more than 30',
-    );
+    it('Should not create new category, because name is not unique', () => {
+      return pactum
+        .spec()
+        .post(path)
+        .withCookies('access_token', cookie.access_token)
+        .withBody(dto)
+        .expectBodyContains('Category already exists')
+        .expectStatus(HttpStatus.FORBIDDEN);
+    });
+    it('Should not create new category, because name is have length less than 3', () => {
+      return pactum
+        .spec()
+        .post(path)
+        .withCookies('access_token', cookie.access_token)
+        .withBody({
+          name: 'ab',
+          isAvailable: true,
+        })
+        .expectBodyContains('name must be longer than or equal to 3 characters')
+        .expectStatus(HttpStatus.BAD_REQUEST);
+    });
+    it('Should not create new category, because name is have length more than 30', () => {
+      return pactum
+        .spec()
+        .post(path)
+        .withCookies('access_token', cookie.access_token)
+        .withBody({
+          name: 'a'.repeat(31),
+          isAvailable: true,
+        })
+        .expectBodyContains(
+          'name must be shorter than or equal to 30 characters',
+        )
+        .expectStatus(HttpStatus.BAD_REQUEST);
+    });
   });
 
   describe('Category getting', () => {
