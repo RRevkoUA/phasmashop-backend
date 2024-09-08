@@ -1,10 +1,14 @@
-import { de, faker } from '@faker-js/faker';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { faker } from '@faker-js/faker';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { CreateCategoryDto } from 'src/category/dto';
-import mongoose from 'mongoose';
+import { UserSeed } from 'src/common/seeders/user.seeder';
+import { RoleEnum } from 'src/common/enums';
 import * as bodyParser from 'body-parser';
+import * as pactum from 'pactum';
+import * as cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
 
 describe('Category controller E2E Test', () => {
   let app: INestApplication;
@@ -33,11 +37,13 @@ describe('Category controller E2E Test', () => {
       }),
     );
 
-    await app.init();
+    app.use(cookieParser());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     await app.init();
     await app.listen(port);
+
+    pactum.request.setBaseUrl(host);
   });
 
   afterAll(async () => {
@@ -45,8 +51,40 @@ describe('Category controller E2E Test', () => {
   });
 
   describe('Category creating', () => {
-    it.todo('Should not create new category, UNAUTHORIZED');
-    it.todo('should not create new category, Have not permission');
+    const path = uri;
+    it('Should not create new category, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .post(path)
+        .withBody(dto)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('should not create new category, Have not permission', async () => {
+      try {
+        cookie = await app.get(UserSeed).seed(1, [RoleEnum.MODERATOR]);
+      } catch (err) {
+        console.error(err);
+      }
+      return pactum
+        .spec()
+        .post(path)
+        .withCookies('access_token', cookie.access_token)
+        .withBody(dto)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should create new category', async () => {
+      try {
+        cookie = await app.get(UserSeed).seed(1, [RoleEnum.ADMIN]);
+      } catch (err) {
+        console.error(err);
+      }
+      return pactum
+        .spec()
+        .post(path)
+        .withCookies('access_token', cookie.access_token)
+        .withBody(dto)
+        .expectStatus(HttpStatus.CREATED);
+    });
     it.todo('Should not create new category, because name is not unique');
     it.todo(
       'Should not create new category, because name is have length less than 3',
@@ -54,7 +92,6 @@ describe('Category controller E2E Test', () => {
     it.todo(
       'Should not create new category, because name is have length more than 30',
     );
-    it.todo('Should create new category');
   });
 
   describe('Category getting', () => {
