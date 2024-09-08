@@ -7,6 +7,7 @@ import * as pactum from 'pactum';
 import mongoose from 'mongoose';
 import { UserSeed } from 'src/common/seeders/user.seeder';
 import * as cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
@@ -38,6 +39,9 @@ describe('AuthController E2E Test', () => {
         whitelist: true,
       }),
     );
+    // app.use(cookieParser());
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: true }));
     await app.init();
     await app.listen(port);
     pactum.request.setBaseUrl(host);
