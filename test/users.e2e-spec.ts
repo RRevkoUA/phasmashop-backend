@@ -20,7 +20,7 @@ describe('AuthController E2E Test', () => {
   const host = `http://localhost:${port}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
-    password: faker.internet.password(),
+    password: faker.internet.password({ length: 8, prefix: 'Aa1' }),
     username: faker.internet.userName(),
   };
 
@@ -93,7 +93,7 @@ describe('AuthController E2E Test', () => {
     });
 
     it('Should patch user`s password', () => {
-      newPassword = faker.internet.password();
+      newPassword = faker.internet.password({ length: 8, prefix: 'Aa1' });
       return pactum
         .spec()
         .patch(path)
@@ -141,6 +141,19 @@ describe('AuthController E2E Test', () => {
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
 
+    it('Should not get users NO PERMISSION', async () => {
+      try {
+        cookie = await app.get(UserSeed).seed(1, [RoleEnum.USER]);
+      } catch (err) {
+        console.error(err);
+      }
+      return pactum
+        .spec()
+        .get(uri)
+        .withCookies('access_token', cookie.access_token)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
     it('Should get users', async () => {
       try {
         cookie = await app.get(UserSeed).seed(20, [RoleEnum.MODERATOR]);
@@ -152,7 +165,7 @@ describe('AuthController E2E Test', () => {
         .get(uri)
         .withCookies('access_token', cookie.access_token)
         .stores('username', '[0].username')
-        .expectJsonLength(20)
+        .expectJsonLength(21)
         .expectStatus(HttpStatus.OK);
     });
 

@@ -20,7 +20,7 @@ export class UserSeed {
       while (amount) {
         const dto: SignupAuthDto = {
           email: faker.internet.email(),
-          password: faker.internet.password(),
+          password: faker.internet.password({ length: 8, prefix: 'Aa1' }),
           username: faker.internet.userName(),
           role: faker.helpers.arrayElement(Object.values(possibleRoles)),
           phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
