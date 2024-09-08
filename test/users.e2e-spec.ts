@@ -10,7 +10,7 @@ import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
 import { RoleEnum } from 'src/common/enums';
 
-describe('AuthController E2E Test', () => {
+describe('UsersController E2E Test', () => {
   let app: INestApplication;
   let newPassword;
   let cookie;
