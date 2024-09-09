@@ -35,9 +35,9 @@ export class UserSeed {
     });
   }
 
-  async seedRoles(): Promise<Tokens[]> {
+  async seedRoles(): Promise<{ [key: string]: Tokens }> {
     return new Promise(async (resolve, reject) => {
-      const tokens: Tokens[] = [];
+      const tokens: { [key: string]: Tokens } = {};
       for (const role in RoleEnum) {
         const dto: SignupAuthDto = {
           email: faker.internet.email(),
@@ -46,9 +46,11 @@ export class UserSeed {
           role: RoleEnum[role],
           phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
         };
-        tokens[role] = await this.authService.signup(dto).catch((err) => {
+        try {
+          tokens[role] = await this.authService.signup(dto);
+        } catch (err) {
           return reject(err);
-        });
+        }
       }
       return resolve(tokens);
     });
