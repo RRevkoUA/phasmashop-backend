@@ -44,7 +44,12 @@ export class CategoryService {
 
   async update(categoryName: string, dto: UpdateCategoryDto) {
     const category = await this.findOne(categoryName);
-    return await this.categoryModel.findByIdAndUpdate(category._id, dto);
+    try {
+      return await this.categoryModel.findByIdAndUpdate(category._id, dto);
+    } catch (err) {
+      this.logger.error(err.message);
+      throw new ForbiddenException(err.message);
+    }
   }
 
   async remove(categoryName: string) {
