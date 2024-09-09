@@ -154,6 +154,7 @@ describe('UsersController E2E Test', () => {
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
 
+    // TODO :: Issue#76
     it('Should get users', async () => {
       try {
         cookie = await app.get(UserSeed).seed(20, [RoleEnum.MODERATOR]);

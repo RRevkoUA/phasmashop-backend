@@ -3,7 +3,7 @@ import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { CreateSubcategoryDto } from 'src/subcategory/dto';
-import { CategorySeed, UserSeed } from 'src/common/seeders';
+import { CategorySeed, SubcategorySeed, UserSeed } from 'src/common/seeders';
 import { Tokens } from 'src/auth/types';
 import * as pactum from 'pactum';
 import * as cookieParser from 'cookie-parser';
@@ -48,6 +48,7 @@ describe('Subcategory controller E2E Test', () => {
     try {
       categories = await app.get(CategorySeed).seed(10);
       cookie = await app.get(UserSeed).seedRoles();
+      subcategories = await app.get(SubcategorySeed).seed(10, categories[0]);
     } catch (err) {
       throw err;
     }
@@ -134,6 +135,7 @@ describe('Subcategory controller E2E Test', () => {
   });
 
   describe('Subcategory getting', () => {
+    // TODO :: Issue#76
     it.todo('Should get all categories');
     it.todo('Should get subcategory by id');
   });

@@ -126,6 +126,7 @@ describe('Category controller E2E Test', () => {
   });
 
   describe('Category getting', () => {
+    // TODO :: Issue#76
     it('Should get all categories', async () => {
       try {
         categories = await app.get(CategorySeed).seed(5);
