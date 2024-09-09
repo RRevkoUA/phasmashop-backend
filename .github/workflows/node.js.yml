@@ -33,4 +33,5 @@ jobs:
     - run: npm run test:e2e:ci --t 'auth'
     - run: npm run test:e2e:ci --t 'users'
     - run: npm run test:e2e:ci --t 'category'
+    - run: npm run test:e2e:ci --t 'subcategory'
     - run: npm run db:test:rm
