@@ -226,4 +226,11 @@ describe('Category controller E2E Test', () => {
         .expectStatus(HttpStatus.NOT_FOUND);
     });
   });
+
+  describe('Subcategory interaction', () => {
+    it.todo('Should add subcategory to category');
+    it.todo('Should add many subcategories to category');
+    it.todo('Should get category without subcategories');
+    it.todo('Should remove category, and all subcategories');
+  });
 });
