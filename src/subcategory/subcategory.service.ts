@@ -88,8 +88,8 @@ export class SubcategoryService {
         { new: true },
       );
     } catch (error) {
-      this.logger.error('Subcategory already exists');
-      throw new ForbiddenException('Subcategory already exists');
+      this.logger.error(error);
+      throw new ForbiddenException(error);
     }
   }
 
