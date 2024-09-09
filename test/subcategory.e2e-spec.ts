@@ -1,23 +1,26 @@
 import { faker } from '@faker-js/faker';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { CreateSubcategoryDto } from 'src/subcategory/dto';
-import mongoose from 'mongoose';
-import * as bodyParser from 'body-parser';
+import { CategorySeed, UserSeed } from 'src/common/seeders';
 import { Tokens } from 'src/auth/types';
-import { RoleEnum } from 'src/common/enums';
+import * as pactum from 'pactum';
+import * as cookieParser from 'cookie-parser';
+import * as bodyParser from 'body-parser';
+import mongoose from 'mongoose';
 
 describe('Subcategory controller E2E Test', () => {
   let app: INestApplication;
-  let cookie: Tokens;
+  let cookie: { [key: string]: Tokens } = {};
   let subcategories: string[];
   let categories: string[];
   const port = Number.parseInt(process.env.APP_PORT) + 30;
   const uri = 'subcategory/';
   const host = `http://localhost:${port}/`;
-  const dto: CreateSubsubcategoryDto = {
+  const dto: CreateSubcategoryDto = {
     name: faker.lorem.word(),
+    category: undefined,
     isAvailable: true,
   };
 
@@ -36,11 +39,20 @@ describe('Subcategory controller E2E Test', () => {
       }),
     );
 
-    await app.init();
+    app.use(cookieParser());
     app.use(bodyParser.json());
     app.use(bodyParser.urlencoded({ extended: true }));
     await app.init();
     await app.listen(port);
+
+    try {
+      categories = await app.get(CategorySeed).seed(10);
+      cookie = await app.get(UserSeed).seedRoles();
+    } catch (err) {
+      throw err;
+    }
+    dto.category = categories[0];
+    pactum.request.setBaseUrl(host);
   });
 
   afterAll(async () => {
@@ -48,18 +60,77 @@ describe('Subcategory controller E2E Test', () => {
   });
 
   describe('Subcategory creating', () => {
-    it.todo('Should not create new subcategory, UNAUTHORIZED');
-    it.todo('should not create new subcategory, Have not permission');
-    it.todo('Should not create new subcategory, because name is not unique');
-    it.todo(
-      'Should not create new subcategory, because name is have length less than 3',
-    );
-    it.todo(
-      'Should not create new subcategory, because name is have length more than 50',
-    );
-    it.todo('Should not create new subcategory, because body is empty');
-    it.todo('Should not create new subcategory, because category is not exist');
-    it.todo('Should create new subcategory');
+    it('Should not create new subcategory, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('should not create new subcategory, Have not permission', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .withCookies('access_token', cookie.MODERATOR)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should create new subcategory', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.CREATED);
+    });
+    it('Should not create new subcategory, because name is not unique', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.FORBIDDEN);
+    });
+    it('Should not create new subcategory, because name is have length less than 3', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody({
+          ...dto,
+          name: 'a',
+        })
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.BAD_REQUEST);
+    });
+    it('Should not create new subcategory, because name is have length more than 50', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody({
+          ...dto,
+          name: 'a'.repeat(51),
+        })
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.BAD_REQUEST);
+    });
+    it('Should not create new subcategory, because body is empty', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.BAD_REQUEST);
+    });
+    it('Should not create new subcategory, because category is not exist', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody({
+          ...dto,
+          category: faker.lorem.word(),
+        })
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.NOT_FOUND);
+    });
   });
 
   describe('Subcategory getting', () => {
