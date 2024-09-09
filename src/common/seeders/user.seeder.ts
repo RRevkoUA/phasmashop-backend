@@ -34,4 +34,23 @@ export class UserSeed {
       return reject('Cannot seed users');
     });
   }
+
+  async seedRoles(): Promise<Tokens[]> {
+    return new Promise(async (resolve, reject) => {
+      const tokens: Tokens[] = [];
+      for (const role in RoleEnum) {
+        const dto: SignupAuthDto = {
+          email: faker.internet.email(),
+          password: faker.internet.password({ length: 8, prefix: 'Aa1' }),
+          username: faker.internet.userName(),
+          role: RoleEnum[role],
+          phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
+        };
+        tokens[role] = await this.authService.signup(dto).catch((err) => {
+          return reject(err);
+        });
+      }
+      return resolve(tokens);
+    });
+  }
 }
