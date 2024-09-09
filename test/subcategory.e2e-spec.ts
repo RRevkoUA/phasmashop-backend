@@ -135,9 +135,16 @@ describe('Subcategory controller E2E Test', () => {
   });
 
   describe('Subcategory getting', () => {
-    // TODO :: Issue#76
-    it.todo('Should get all categories');
-    it.todo('Should get subcategory by id');
+    // TODO :: #76
+    it('Should get all categories', () => {
+      return pactum.spec().get(uri).expectStatus(HttpStatus.OK);
+    });
+    it('Should get subcategory by id', () => {
+      return pactum
+        .spec()
+        .get(`${uri}${subcategories[0]}`)
+        .expectStatus(HttpStatus.OK);
+    });
   });
 
   describe('Subcategory updating', () => {
