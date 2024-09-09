@@ -30,8 +30,8 @@ jobs:
     - run: touch .env
     - run: npm run build --if-present
     - run: npm run db:test:up
-    - run: npm run test:e2e --t 'users'"
-    - run: npm run test:e2e --t 'auth'"
-    - run: npm run test:e2e --t 'category'"
+    - run: npm run test:e2e --t 'users'
+    - run: npm run test:e2e --t 'auth'
+    - run: npm run test:e2e --t 'category'
 
     - run: npm run db:test:rm
