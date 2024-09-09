@@ -19,7 +19,7 @@ describe('Subcategory controller E2E Test', () => {
   const uri = 'subcategory/';
   const host = `http://localhost:${port}/`;
   const dto: CreateSubcategoryDto = {
-    name: faker.lorem.word(),
+    name: faker.lorem.word({ length: { min: 3, max: 50 } }),
     category: undefined,
     isAvailable: true,
   };
