@@ -227,6 +227,11 @@ describe('Category controller E2E Test', () => {
     });
   });
 
+  describe('Additional', () => {
+    it.todo('Should return empty body');
+    it.todo('Should return 404, because category is not exist');
+  });
+
   describe('Subcategory interaction', () => {
     it.todo('Should add subcategory to category');
     it.todo('Should add many subcategories to category');
