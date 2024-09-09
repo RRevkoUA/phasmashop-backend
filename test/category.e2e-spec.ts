@@ -14,6 +14,7 @@ import { Tokens } from 'src/auth/types';
 describe('Category controller E2E Test', () => {
   let app: INestApplication;
   let cookie: Tokens;
+  let cookieAdmin: Tokens;
   let categories: string[];
 
   const port = Number.parseInt(process.env.APP_PORT) + 20;
@@ -76,14 +77,14 @@ describe('Category controller E2E Test', () => {
     });
     it('Should create new category', async () => {
       try {
-        cookie = await app.get(UserSeed).seed(1, [RoleEnum.ADMIN]);
+        cookieAdmin = await app.get(UserSeed).seed(1, [RoleEnum.ADMIN]);
       } catch (err) {
         console.error(err);
       }
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', cookieAdmin.access_token)
         .withBody(dto)
         .expectStatus(HttpStatus.CREATED);
     });
@@ -91,7 +92,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', cookieAdmin.access_token)
         .withBody(dto)
         .expectBodyContains('Category already exists')
         .expectStatus(HttpStatus.FORBIDDEN);
@@ -100,7 +101,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', cookieAdmin.access_token)
         .withBody({
           name: 'ab',
           isAvailable: true,
@@ -112,7 +113,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', cookieAdmin.access_token)
         .withBody({
           name: 'a'.repeat(31),
           isAvailable: true,
@@ -143,17 +144,86 @@ describe('Category controller E2E Test', () => {
   });
 
   describe('Category updating', () => {
-    it.todo('Should not update category, UNAUTHORIZED');
-    it.todo('Should not update category, Have not permission');
-    it.todo('Should not update category, because name is not unique');
-    it.todo('Should not update category, becouse body is empty');
-    it.todo('Should update category');
+    it('Should not update category, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${categories[0]}`)
+        .withBody({
+          name: faker.lorem.word({ length: { min: 3, max: 30 } }),
+          isAvailable: true,
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not update category, Have not permission', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${categories[0]}`)
+        .withCookies('access_token', cookie.access_token)
+        .withBody({
+          name: faker.lorem.word({ length: { min: 3, max: 30 } }),
+          isAvailable: true,
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not update category, because name is not unique', async () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${categories[0]}`)
+        .withCookies('access_token', cookieAdmin.access_token)
+        .withBody({
+          name: categories[1],
+          isAvailable: true,
+        })
+        .expectBodyContains('E11000 duplicate key error')
+        .expectStatus(HttpStatus.FORBIDDEN);
+    });
+    it('Should update category, when body is empty', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${categories[0]}`)
+        .withCookies('access_token', cookieAdmin.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should update category', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${categories[0]}`)
+        .withCookies('access_token', cookieAdmin.access_token)
+        .withBody({
+          name: faker.lorem.word({ length: { min: 3, max: 30 } }),
+          isAvailable: true,
+        })
+        .expectStatus(HttpStatus.OK);
+    });
   });
 
   describe('Category remove', () => {
-    it.todo('Should not remove category, UNAUTHORIZED');
-    it.todo('Should not remove category, Have not permission');
-    it.todo('Should not remove category, because category is not exist');
-    it.todo('Should remove category');
+    it('Should not remove category, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${categories[2]}`)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not remove category, Have not permission', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${categories[2]}`)
+        .withCookies('access_token', cookie.access_token)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should remove category', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${categories[2]}`)
+        .withCookies('access_token', cookieAdmin.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should not remove category, because category is not exist', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${categories[2]}`)
+        .withCookies('access_token', cookieAdmin.access_token)
+        .expectStatus(HttpStatus.NOT_FOUND);
+    });
   });
 });
