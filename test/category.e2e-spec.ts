@@ -3,22 +3,24 @@ import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { CreateCategoryDto } from 'src/category/dto';
-import { UserSeed } from 'src/common/seeders/user.seeder';
+import { UserSeed, CategorySeed } from 'src/common/seeders';
 import { RoleEnum } from 'src/common/enums';
 import * as bodyParser from 'body-parser';
 import * as pactum from 'pactum';
 import * as cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
+import { Tokens } from 'src/auth/types';
 
 describe('Category controller E2E Test', () => {
   let app: INestApplication;
-  let cookie;
+  let cookie: Tokens;
+  let categories: string[];
 
   const port = Number.parseInt(process.env.APP_PORT) + 20;
   const uri = 'category/';
   const host = `http://localhost:${port}/`;
   const dto: CreateCategoryDto = {
-    name: faker.lorem.word(),
+    name: faker.lorem.word({ length: { min: 3, max: 30 } }),
     isAvailable: true,
   };
 
@@ -123,8 +125,21 @@ describe('Category controller E2E Test', () => {
   });
 
   describe('Category getting', () => {
-    it.todo('Should get all categories');
-    it.todo('Should get category by id');
+    it('Should get all categories', async () => {
+      try {
+        categories = await app.get(CategorySeed).seed(5);
+      } catch (err) {
+        console.error(err);
+      }
+
+      return pactum.spec().get(uri).expectStatus(HttpStatus.OK);
+    });
+    it('Should get category by id', () => {
+      return pactum
+        .spec()
+        .get(`${uri}${categories[0]}`)
+        .expectStatus(HttpStatus.OK);
+    });
   });
 
   describe('Category updating', () => {
