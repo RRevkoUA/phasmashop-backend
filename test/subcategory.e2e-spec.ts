@@ -136,7 +136,7 @@ describe('Subcategory controller E2E Test', () => {
 
   describe('Subcategory getting', () => {
     // TODO :: #76
-    it('Should get all categories', () => {
+    it('Should get all subcategories', () => {
       return pactum.spec().get(uri).expectStatus(HttpStatus.OK);
     });
     it('Should get subcategory by id', () => {
@@ -148,14 +148,67 @@ describe('Subcategory controller E2E Test', () => {
   });
 
   describe('Subcategory updating', () => {
-    it.todo('Should not update subcategory, UNAUTHORIZED');
-    it.todo('Should not update subcategory, Have not permission');
-    it.todo('Should not update subcategory, because name is not unique');
-    it.todo('Should not update subcategory, because body is empty');
-    it.todo('Should update subcategory name');
-    it.todo("Should update subcategory's category");
+    it('Should not update subcategory, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${subcategories[0]}`)
+        .withBody({
+          name: faker.lorem.word({ length: { min: 3, max: 50 } }),
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not update subcategory, Have not permission', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${subcategories[0]}`)
+        .withBody({
+          name: faker.lorem.word({ length: { min: 3, max: 50 } }),
+        })
+        .withCookies('access_token', cookie.MODERATOR)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not update subcategory, because name is not unique', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${subcategories[0]}`)
+        .withBody({
+          name: dto.name,
+        })
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.FORBIDDEN);
+    });
+    it('Should not update subcategory, because body is empty', () => {
+      return pactum
+        .spec()
+        .patch(`${uri}${subcategories[0]}`)
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it("Should update subcategory's category", () => {
+      const updatedCategory = categories[1];
+      return pactum
+        .spec()
+        .patch(`${uri}${subcategories[0]}`)
+        .withBody({
+          category: updatedCategory,
+        })
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .inspect()
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should update subcategory name', () => {
+      const updatedName = faker.lorem.word({ length: { min: 3, max: 50 } });
+      return pactum
+        .spec()
+        .patch(`${uri}${subcategories[0]}`)
+        .withBody({
+          name: updatedName,
+        })
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectBodyContains(updatedName)
+        .expectStatus(HttpStatus.OK);
+    });
   });
-
   describe('Subcategory remove', () => {
     it.todo('Should not remove subcategory, UNAUTHORIZED');
     it.todo('Should not remove subcategory, Have not permission');
