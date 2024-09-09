@@ -210,9 +210,32 @@ describe('Subcategory controller E2E Test', () => {
     });
   });
   describe('Subcategory remove', () => {
-    it.todo('Should not remove subcategory, UNAUTHORIZED');
-    it.todo('Should not remove subcategory, Have not permission');
-    it.todo('Should not remove subcategory, because subcategory is not exist');
-    it.todo('Should remove subcategory');
+    it('Should not remove subcategory, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${subcategories[1]}`)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not remove subcategory, Have not permission', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${subcategories[1]}`)
+        .withCookies('access_token', cookie.MODERATOR)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not remove subcategory, because subcategory is not exist', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${faker.lorem.word()}`)
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.NOT_FOUND);
+    });
+    it('Should remove subcategory', () => {
+      return pactum
+        .spec()
+        .delete(`${uri}${subcategories[1]}`)
+        .withCookies('access_token', cookie.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
   });
 });
