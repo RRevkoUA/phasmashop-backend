@@ -27,11 +27,5 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm ci
-    - run: touch .env
     - run: npm run build --if-present
-    - run: npm run db:test:up
-    - run: npm run test:e2e:ci --t 'auth'
-    - run: npm run test:e2e:ci --t 'users'
-    - run: npm run test:e2e:ci --t 'category'
-    - run: npm run test:e2e:ci --t 'subcategory'
-    - run: npm run db:test:rm
+    - run: npm run test:e2e:ci 
