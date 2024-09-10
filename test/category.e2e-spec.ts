@@ -5,17 +5,19 @@ import { AppModule } from 'src/app.module';
 import { CreateCategoryDto } from 'src/category/dto';
 import { UserSeed, CategorySeed } from 'src/common/seeders';
 import { RoleEnum } from 'src/common/enums';
+import { Tokens } from 'src/auth/types';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as bodyParser from 'body-parser';
 import * as pactum from 'pactum';
 import * as cookieParser from 'cookie-parser';
 import mongoose from 'mongoose';
-import { Tokens } from 'src/auth/types';
 
 describe('Category controller E2E Test', () => {
   let app: INestApplication;
   let cookie: Tokens;
   let cookieAdmin: Tokens;
   let categories: string[];
+  let mongod: MongoMemoryServer;
 
   const port = Number.parseInt(process.env.APP_PORT) + 20;
   const uri = 'category/';
@@ -26,7 +28,12 @@ describe('Category controller E2E Test', () => {
   };
 
   beforeAll(async () => {
-    await mongoose.connect(process.env.DB_URL);
+    mongod = await MongoMemoryServer.create({
+      instance: { port: port + 5 },
+    });
+    const uri = mongod.getUri();
+
+    await mongoose.connect(uri);
     const db = mongoose.connection.db;
     await db.dropDatabase();
     mongoose.connection.close();
@@ -50,6 +57,7 @@ describe('Category controller E2E Test', () => {
   });
 
   afterAll(async () => {
+    mongod.stop();
     app.close();
   });
 
@@ -230,7 +238,7 @@ describe('Category controller E2E Test', () => {
 
   describe('Additional', () => {
     it.todo('Should return empty body');
-    it.todo('Should return 404, because category is not exist');
+    it.todo('Should return NotFound, because category is not exist');
   });
 
   describe('Subcategory interaction', () => {

@@ -3,11 +3,14 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from 'src/app.module';
 import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as pactum from 'pactum';
 import mongoose from 'mongoose';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
+  let mongod: MongoMemoryServer;
+
   const port = Number.parseInt(process.env.APP_PORT);
   const host = `http://localhost:${port}/`;
   const dto: SignupAuthDto = {
@@ -18,7 +21,12 @@ describe('AuthController E2E Test', () => {
   };
 
   beforeAll(async () => {
-    await mongoose.connect(process.env.DB_URL);
+    mongod = await MongoMemoryServer.create({
+      instance: { port: port + 5 },
+    });
+    const uri = mongod.getUri();
+
+    await mongoose.connect(uri);
     const db = mongoose.connection.db;
     await db.dropDatabase();
     mongoose.connection.close();
@@ -39,6 +47,7 @@ describe('AuthController E2E Test', () => {
   });
 
   afterAll(async () => {
+    mongod.stop();
     app.close();
   });
 

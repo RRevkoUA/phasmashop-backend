@@ -5,6 +5,7 @@ import { AppModule } from 'src/app.module';
 import { CreateSubcategoryDto } from 'src/subcategory/dto';
 import { CategorySeed, SubcategorySeed, UserSeed } from 'src/common/seeders';
 import { Tokens } from 'src/auth/types';
+import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as pactum from 'pactum';
 import * as cookieParser from 'cookie-parser';
 import * as bodyParser from 'body-parser';
@@ -15,6 +16,8 @@ describe('Subcategory controller E2E Test', () => {
   let cookie: { [key: string]: Tokens } = {};
   let subcategories: string[];
   let categories: string[];
+  let mongod: MongoMemoryServer;
+
   const port = Number.parseInt(process.env.APP_PORT) + 30;
   const uri = 'subcategory/';
   const host = `http://localhost:${port}/`;
@@ -25,7 +28,12 @@ describe('Subcategory controller E2E Test', () => {
   };
 
   beforeAll(async () => {
-    await mongoose.connect(process.env.DB_URL);
+    mongod = await MongoMemoryServer.create({
+      instance: { port: port + 5 },
+    });
+    const uri = mongod.getUri();
+    await mongoose.connect(uri);
+
     const db = mongoose.connection.db;
     await db.dropDatabase();
     mongoose.connection.close();
@@ -44,7 +52,6 @@ describe('Subcategory controller E2E Test', () => {
     app.use(bodyParser.urlencoded({ extended: true }));
     await app.init();
     await app.listen(port);
-
     try {
       categories = await app.get(CategorySeed).seed(10);
       cookie = await app.get(UserSeed).seedRoles();
@@ -57,6 +64,7 @@ describe('Subcategory controller E2E Test', () => {
   });
 
   afterAll(async () => {
+    mongod.stop();
     app.close();
   });
 
