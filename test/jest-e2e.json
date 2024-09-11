@@ -4,6 +4,8 @@
   "cache": false,
   "watchman": false,
   "cacheDirectory": "./.tmp",
+  "globalSetup": "./test/jest.global-setup.ts",
+  "globalTeardown": "./test/jest.global-teardown.ts",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
