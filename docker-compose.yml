@@ -8,15 +8,5 @@ services:
       - .env
     networks:
       - localnetwork
-
-  test-db:
-    image: mongodb/mongodb-community-server:6.0-ubi8
-    ports:
-      - 27018:27017
-    env_file:
-      - .env.test
-    networks:
-      - localnetwork
-
 networks:
   localnetwork:
