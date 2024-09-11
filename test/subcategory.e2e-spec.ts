@@ -1,22 +1,16 @@
 import { faker } from '@faker-js/faker';
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateSubcategoryDto } from 'src/subcategory/dto';
 import { CategorySeed, SubcategorySeed, UserSeed } from 'src/common/seeders';
 import { Tokens } from 'src/auth/types';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { createTestingModule } from './test-utils';
 import * as pactum from 'pactum';
-import * as cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser';
-import mongoose from 'mongoose';
 
 describe('Subcategory controller E2E Test', () => {
   let app: INestApplication;
   let cookie: { [key: string]: Tokens } = {};
   let subcategories: string[];
   let categories: string[];
-  let mongod: MongoMemoryServer;
 
   const port = Number.parseInt(process.env.APP_PORT) + 30;
   const uri = 'subcategory/';
@@ -28,30 +22,11 @@ describe('Subcategory controller E2E Test', () => {
   };
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create({
-      instance: { port: port + 5 },
-    });
-    const uri = mongod.getUri();
-    await mongoose.connect(uri);
-
-    const db = mongoose.connection.db;
-    await db.dropDatabase();
-    mongoose.connection.close();
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = moduleRef.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-      }),
+    const { app: appInstance } = await createTestingModule(
+      'subcategory-test',
+      port,
     );
-
-    app.use(cookieParser());
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-    await app.init();
-    await app.listen(port);
+    app = appInstance;
     try {
       categories = await app.get(CategorySeed).seed(10);
       cookie = await app.get(UserSeed).seedRoles();
@@ -61,11 +36,10 @@ describe('Subcategory controller E2E Test', () => {
     }
     dto.category = categories[0];
     pactum.request.setBaseUrl(host);
-  });
+  }, 10 * 1000);
 
   afterAll(async () => {
-    mongod.stop();
-    app.close();
+    await app.close();
   });
 
   describe('Subcategory creating', () => {
@@ -201,7 +175,6 @@ describe('Subcategory controller E2E Test', () => {
           category: updatedCategory,
         })
         .withCookies('access_token', cookie.ADMIN.access_token)
-        .inspect()
         .expectStatus(HttpStatus.OK);
     });
     it('Should update subcategory name', () => {

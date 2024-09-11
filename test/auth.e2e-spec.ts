@@ -1,15 +1,11 @@
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
-import { MongoMemoryServer } from 'mongodb-memory-server';
 import * as pactum from 'pactum';
-import mongoose from 'mongoose';
+import { createTestingModule } from './test-utils';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;
-  let mongod: MongoMemoryServer;
 
   const port = Number.parseInt(process.env.APP_PORT);
   const host = `http://localhost:${port}/`;
@@ -21,34 +17,13 @@ describe('AuthController E2E Test', () => {
   };
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create({
-      instance: { port: port + 5 },
-    });
-    const uri = mongod.getUri();
-
-    await mongoose.connect(uri);
-    const db = mongoose.connection.db;
-    await db.dropDatabase();
-    mongoose.connection.close();
-
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleRef.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-      }),
-    );
-    await app.init();
-    await app.listen(port);
+    const { app: appInstance } = await createTestingModule('auth-test', port);
+    app = appInstance;
     pactum.request.setBaseUrl(host);
   });
 
   afterAll(async () => {
-    mongod.stop();
-    app.close();
+    await app.close();
   });
 
   describe('Signup testing', () => {

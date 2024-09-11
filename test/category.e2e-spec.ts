@@ -1,23 +1,17 @@
 import { faker } from '@faker-js/faker';
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateCategoryDto } from 'src/category/dto';
 import { UserSeed, CategorySeed } from 'src/common/seeders';
 import { RoleEnum } from 'src/common/enums';
 import { Tokens } from 'src/auth/types';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import * as bodyParser from 'body-parser';
+import { createTestingModule } from './test-utils';
 import * as pactum from 'pactum';
-import * as cookieParser from 'cookie-parser';
-import mongoose from 'mongoose';
 
 describe('Category controller E2E Test', () => {
   let app: INestApplication;
   let cookie: Tokens;
   let cookieAdmin: Tokens;
   let categories: string[];
-  let mongod: MongoMemoryServer;
 
   const port = Number.parseInt(process.env.APP_PORT) + 20;
   const uri = 'category/';
@@ -28,37 +22,15 @@ describe('Category controller E2E Test', () => {
   };
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create({
-      instance: { port: port + 5 },
-    });
-    const uri = mongod.getUri();
-
-    await mongoose.connect(uri);
-    const db = mongoose.connection.db;
-    await db.dropDatabase();
-    mongoose.connection.close();
-    const moduleRef = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = moduleRef.createNestApplication();
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-      }),
+    const { app: appInstance } = await createTestingModule(
+      'category-test',
+      port,
     );
-
-    app.use(cookieParser());
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-    await app.init();
-    await app.listen(port);
-
+    app = appInstance;
     pactum.request.setBaseUrl(host);
   });
-
   afterAll(async () => {
-    mongod.stop();
-    app.close();
+    await app.close();
   });
 
   describe('Category creating', () => {

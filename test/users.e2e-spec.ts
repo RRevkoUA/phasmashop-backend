@@ -1,21 +1,15 @@
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
-import mongoose from 'mongoose';
 import { UserSeed } from 'src/common/seeders/user.seeder';
-import * as cookieParser from 'cookie-parser';
-import * as bodyParser from 'body-parser';
 import { RoleEnum } from 'src/common/enums';
-import { MongoMemoryServer } from 'mongodb-memory-server';
+import { createTestingModule } from './test-utils';
 
 describe('UsersController E2E Test', () => {
   let app: INestApplication;
   let newPassword;
   let cookie;
-  let mongod: MongoMemoryServer;
 
   const port = Number.parseInt(process.env.APP_PORT) + 10;
   const uri = 'users/';
@@ -27,36 +21,13 @@ describe('UsersController E2E Test', () => {
   };
 
   beforeAll(async () => {
-    mongod = await MongoMemoryServer.create({
-      instance: { port: port + 5 },
-    });
-    const uri = mongod.getUri();
-
-    await mongoose.connect(uri);
-    const db = mongoose.connection.db;
-    await db.dropDatabase();
-    mongoose.connection.close();
-
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = moduleRef.createNestApplication();
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-      }),
-    );
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: true }));
-    await app.init();
-    await app.listen(port);
+    const { app: appInstance } = await createTestingModule('users-test', port);
+    app = appInstance;
     pactum.request.setBaseUrl(host);
   });
 
   afterAll(async () => {
-    mongod.stop();
-    app.close();
+    await app.close();
   });
 
   describe('users/me e2e testing', () => {

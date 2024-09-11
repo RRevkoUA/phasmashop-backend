@@ -1,6 +1,9 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": "..",
+  "cache": false,
+  "watchman": false,
+  "cacheDirectory": "./.tmp",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
