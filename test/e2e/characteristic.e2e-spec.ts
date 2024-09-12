@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Tokens } from 'src/auth/types';
 import {
   CreateCharacteristicDto,
@@ -9,7 +9,6 @@ import { UserSeed, CharacteristicSeed } from 'src/common/seeders';
 import { createTestingModule, TestTemplates } from '../test-utils';
 import * as pactum from 'pactum';
 import { RoleEnum } from 'src/common/enums';
-import { count } from 'console';
 
 describe('Characteristic E2E Test', () => {
   let app: INestApplication;
