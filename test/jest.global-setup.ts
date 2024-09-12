@@ -13,10 +13,17 @@ export default async function globalSetup() {
       port: dbPort,
     },
     binary: { version: '5.0.3' },
-  }).catch((err) => {
-    Logger.error(err);
-    return undefined;
-  });
+  })
+    .then((server) => {
+      Logger.log(
+        'MongoDB server is running on port ' + server.instanceInfo.port,
+      );
+      return server;
+    })
+    .catch((err) => {
+      Logger.error(err);
+      return undefined;
+    });
 }
 
 export { mongoServer };
