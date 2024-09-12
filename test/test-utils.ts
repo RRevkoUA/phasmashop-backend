@@ -11,7 +11,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as pactum from 'pactum';
 import { Tokens } from 'src/auth/types';
-import { faker, th } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { RoleEnum } from 'src/common/enums';
 
 export async function createTestingModule(dbName: string, appPort: number) {
@@ -187,65 +187,82 @@ export class TestTemplates {
       this.users = users;
     }
 
-    #updateTest(status: HttpStatus, role?: RoleEnum) {
-      let test = pactum.spec().patch(this.uri).expectStatus(status);
+    #updateTest(uri: string, status: HttpStatus, role?: RoleEnum) {
+      let test = pactum.spec().patch(uri).expectStatus(status);
       if (role) {
         test = test.withCookies('access_token', this.users[role].access_token);
       }
       return test;
     }
     async passUpdate(params: {
+      updatingUnit: string;
       dto: any;
       role?: RoleEnum;
       status?: HttpStatus;
     }) {
       return this.#updateTest(
+        this.uri + params.updatingUnit,
         params?.status || HttpStatus.OK,
         params?.role,
       ).withBody(params.dto);
     }
 
-    async failedUnauthorized(params: { dto: any; status?: HttpStatus }) {
+    async failedUnauthorized(params: {
+      updatingUnit: string;
+      dto: any;
+      status?: HttpStatus;
+    }) {
       return this.#updateTest(
+        this.uri + params.updatingUnit,
         params?.status || HttpStatus.UNAUTHORIZED,
       ).withBody(params.dto);
     }
 
     async failedHaveNotPermission(params: {
+      updatingUnit: string;
       dto: any;
       role: RoleEnum;
       status?: HttpStatus;
     }) {
       return this.#updateTest(
+        this.uri + params.updatingUnit,
         params?.status || HttpStatus.UNAUTHORIZED,
         params.role,
       ).withBody(params.dto);
     }
 
     async failedNotFound(params: {
+      updatingUnit: string;
       dto: any;
       role?: RoleEnum;
       status?: HttpStatus;
     }) {
       return this.#updateTest(
+        this.uri + params.updatingUnit,
         params?.status || HttpStatus.NOT_FOUND,
         params?.role,
       ).withBody(params.dto);
     }
 
-    async passUpdateEmpty(params?: { role?: RoleEnum; status?: HttpStatus }) {
+    async passUpdateEmpty(
+      updatingUnit: string,
+      params?: { role?: RoleEnum; status?: HttpStatus },
+    ) {
       return this.#updateTest(
+        this.uri + updatingUnit,
         params?.status || HttpStatus.NOT_FOUND,
         params?.role,
       );
     }
 
     async failedUnique(params: {
+      updatingUnit: string;
       dto: any;
       role?: RoleEnum;
       status?: HttpStatus;
     }) {
       return this.#updateTest(
+        this.uri + params.updatingUnit,
         params?.status || HttpStatus.FORBIDDEN,
         params?.role,
       ).withBody(params.dto);
@@ -260,31 +277,50 @@ export class TestTemplates {
       this.users = users;
     }
 
-    #deleteTest(status: HttpStatus, role?: RoleEnum) {
-      let test = pactum.spec().delete(this.uri).expectStatus(status);
+    #deleteTest(uri: string, status: HttpStatus, role?: RoleEnum) {
+      let test = pactum.spec().delete(uri).expectStatus(status);
       if (role) {
         test = test.withCookies('access_token', this.users[role].access_token);
       }
       return test;
     }
 
-    passDelete(params?: { role?: RoleEnum; status?: HttpStatus }) {
-      return this.#deleteTest(params?.status || HttpStatus.OK, params?.role);
-    }
-
-    failedUnauthorized(params?: { status?: HttpStatus }) {
-      return this.#deleteTest(params?.status || HttpStatus.UNAUTHORIZED);
-    }
-
-    failedHaveNotPermission(params: { role: RoleEnum; status?: HttpStatus }) {
+    passDelete(
+      deleteUnit: string,
+      params?: { role?: RoleEnum; status?: HttpStatus },
+    ) {
       return this.#deleteTest(
+        deleteUnit,
+        params?.status || HttpStatus.OK,
+        params?.role,
+      );
+    }
+
+    failedUnauthorized(deleteUnit: string, params?: { status?: HttpStatus }) {
+      return this.#deleteTest(
+        deleteUnit,
+        params?.status || HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    failedHaveNotPermission(params: {
+      deleteUnit: string;
+      role: RoleEnum;
+      status?: HttpStatus;
+    }) {
+      return this.#deleteTest(
+        params.deleteUnit,
         params?.status || HttpStatus.UNAUTHORIZED,
         params.role,
       );
     }
 
-    failedNotFound(params?: { role?: RoleEnum; status?: HttpStatus }) {
+    failedNotFound(deleteUnit: string, params?: {
+      role?: RoleEnum;
+      status?: HttpStatus;
+    }) {
       return this.#deleteTest(
+        deleteUnit,
         params?.status || HttpStatus.NOT_FOUND,
         params?.role,
       );
