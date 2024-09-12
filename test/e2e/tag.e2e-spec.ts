@@ -1,16 +1,22 @@
-import { INestApplication } from '@nestjs/common';
-import { createTestingModule } from 'test/test-utils';
-import * as pactum from 'pactum';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { createTestingModule } from '../test-utils';
 import { Tokens } from 'src/auth/types';
 import { UserSeed } from 'src/common/seeders';
+import * as pactum from 'pactum';
+import { faker } from '@faker-js/faker';
+import { CreateTagDto } from 'src/tag/dto';
 
 describe('TagController E2E Test', () => {
   let app: INestApplication;
+  let users: { [key: string]: Tokens } = {};
 
   const port = Number.parseInt(process.env.APP_PORT) + 40;
   const host = `http://localhost:${port}/`;
   const uri = 'tag/';
-  let users: { [key: string]: Tokens } = {};
+  const dto: CreateTagDto = {
+    name: faker.lorem.word({ length: { min: 3, max: 10 } }),
+    description: faker.lorem.word({ length: { min: 3, max: 30 } }),
+  };
 
   beforeAll(async () => {
     const { app: appInstance } = await createTestingModule('tag-test', port);
@@ -24,10 +30,37 @@ describe('TagController E2E Test', () => {
   });
 
   describe('Tag creating', () => {
-    it.todo('Should not create new tag, UNAUTHORIZED');
-    it.todo('Should not create new tag, Have not permission');
-    it.todo('Should create new tag');
-    it.todo('Should not create new tag, Tag already exists');
+    it('Should not create new tag, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not create new tag, Have not permission', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .withCookies('access_token', users.MODERATOR.access_token)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should create new tag', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.CREATED);
+    });
+    it('Should not create new tag, Tag already exists', () => {
+      return pactum
+        .spec()
+        .post(uri)
+        .withBody(dto)
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.FORBIDDEN);
+    });
   });
 
   describe('Tag getting', () => {
