@@ -16,21 +16,17 @@ describe('TagController E2E Test', () => {
   const host = `http://localhost:${port}/`;
   const uri = 'tag/';
   const dto: CreateTagDto = {
-    name: faker.lorem.word({ length: { min: 3, max: 10 } }),
+    name: faker.lorem.word({ length: { min: 6, max: 10 } }),
     description: faker.lorem.word({ length: { min: 3, max: 30 } }),
   };
 
   beforeAll(async () => {
     const { app: appInstance } = await createTestingModule('tag-test', port);
     app = appInstance;
-    try {
-      users = await app.get(UserSeed).seedRoles();
-      tags = await app.get(TagSeed).seed(5);
-    } catch (err) {
-      throw err;
-    }
+    users = await app.get(UserSeed).seedRoles();
+    tags = await app.get(TagSeed).seed(10);
     pactum.request.setBaseUrl(host);
-  }, 10 * 1000);
+  });
 
   afterAll(async () => {
     await app.close();
@@ -83,15 +79,93 @@ describe('TagController E2E Test', () => {
     it('Should not get tag by id, NOT FOUND', () => {
       return pactum
         .spec()
-        .get(uri + faker.lorem.word({ length: { min: 3, max: 10 } }))
+        .get(uri + faker.lorem.word({ length: { min: 6, max: 10 } }))
         .expectStatus(HttpStatus.NOT_FOUND);
     });
   });
 
   describe('Tag updating', () => {
-    it.todo('Should not update tag, UNAUTHORIZED');
-    it.todo('Should not update tag, Have not permission');
-    it.todo('Should update tag');
+    it('Should not update tag, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[0])
+        .withBody({
+          name: faker.lorem.word({ length: { min: 6, max: 10 } }),
+          description: faker.lorem.word({ length: { min: 3, max: 30 } }),
+        })
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not update tag, Have not permission', () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[0])
+        .withBody({
+          name: faker.lorem.word({ length: { min: 6, max: 10 } }),
+          description: faker.lorem.word({ length: { min: 3, max: 30 } }),
+        })
+        .withCookies('access_token', users.MODERATOR.access_token)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should update tag, when body is empty', () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[0])
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it("Should update tag's description", () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[0])
+        .withBody({
+          description: faker.lorem.word({ length: { min: 6, max: 30 } }),
+        })
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it("Should update tag's name", () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[0])
+        .withBody({
+          name: faker.lorem.word({ length: { min: 6, max: 10 } }),
+        })
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should update tag fully', () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[1])
+        .withBody({
+          name: faker.lorem.word({ length: { min: 6, max: 10 } }),
+          description: faker.lorem.word({ length: { min: 3, max: 30 } }),
+        })
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should not update tag, NOT FOUND', () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[0])
+        .withBody({
+          name: faker.lorem.word({ length: { min: 6, max: 10 } }),
+          description: faker.lorem.word({ length: { min: 3, max: 30 } }),
+        })
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.NOT_FOUND);
+    });
+    it('Should not update tag, Tag name already exists', () => {
+      return pactum
+        .spec()
+        .patch(uri + tags[2])
+        .withBody({
+          name: dto.name,
+          description: faker.lorem.word({ length: { min: 6, max: 30 } }),
+        })
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.FORBIDDEN);
+    });
   });
 
   describe('Tag deleting', () => {
