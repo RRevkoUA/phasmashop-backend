@@ -5,10 +5,12 @@ import { UserSeed } from 'src/common/seeders';
 import * as pactum from 'pactum';
 import { faker } from '@faker-js/faker';
 import { CreateTagDto } from 'src/tag/dto';
+import { TagSeed } from 'src/common/seeders/tag.seeder';
 
 describe('TagController E2E Test', () => {
   let app: INestApplication;
   let users: { [key: string]: Tokens } = {};
+  let tags: string[] = [];
 
   const port = Number.parseInt(process.env.APP_PORT) + 40;
   const host = `http://localhost:${port}/`;
@@ -21,9 +23,14 @@ describe('TagController E2E Test', () => {
   beforeAll(async () => {
     const { app: appInstance } = await createTestingModule('tag-test', port);
     app = appInstance;
-    users = await app.get(UserSeed).seedRoles();
+    try {
+      users = await app.get(UserSeed).seedRoles();
+      tags = await app.get(TagSeed).seed(5);
+    } catch (err) {
+      throw err;
+    }
     pactum.request.setBaseUrl(host);
-  });
+  }, 10 * 1000);
 
   afterAll(async () => {
     await app.close();
@@ -64,9 +71,21 @@ describe('TagController E2E Test', () => {
   });
 
   describe('Tag getting', () => {
-    it.todo('Should get all tags');
-    it.todo('Should get tag by id');
-    it.todo('Should not get tag by id, NOT FOUND');
+    it('Should get all tags', () => {
+      return pactum.spec().get(uri).expectStatus(HttpStatus.OK);
+    });
+    it('Should get tag by id', () => {
+      return pactum
+        .spec()
+        .get(uri + tags[0])
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should not get tag by id, NOT FOUND', () => {
+      return pactum
+        .spec()
+        .get(uri + faker.lorem.word({ length: { min: 3, max: 10 } }))
+        .expectStatus(HttpStatus.NOT_FOUND);
+    });
   });
 
   describe('Tag updating', () => {
