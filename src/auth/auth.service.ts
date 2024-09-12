@@ -1,24 +1,25 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as argon from 'argon2';
 import { SigninAuthDto, SignupAuthDto } from './dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from 'src/schemas/users.schema';
+import { User } from 'src/common/schemas/User.schema';
 import { Model, Types } from 'mongoose';
 import { isEmail } from 'class-validator';
 import { Tokens } from './types';
 
 @Injectable()
 export class AuthService {
+  readonly logger = new Logger(AuthService.name);
   constructor(
     private jwt: JwtService,
-    @InjectModel(User.name) private userModule: Model<User>,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   async signup(dto: SignupAuthDto): Promise<Tokens> {
     try {
       const token = await argon.hash(dto.password);
-      const user = await this.userModule.create({
+      const user = await this.userModel.create({
         ...dto,
         hash: token,
       });
@@ -28,9 +29,11 @@ export class AuthService {
     } catch (err) {
       if (err.code === 11000) {
         const res = Object.values(err.keyValue)[0];
+        this.logger.error(`${res} is already in use`);
         throw new ForbiddenException(`${res} is already in use`);
       }
-      throw err;
+      this.logger.error(err);
+      throw new ForbiddenException(err);
     }
   }
 
@@ -38,20 +41,22 @@ export class AuthService {
     let user;
 
     if (isEmail(dto.login)) {
-      user = await this.userModule.findOne({
+      user = await this.userModel.findOne({
         email: dto.login,
       });
     } else {
-      user = await this.userModule.findOne({
+      user = await this.userModel.findOne({
         username: dto.login,
       });
     }
     if (!user) {
+      this.logger.error('Credentials incorrect');
       throw new ForbiddenException('Credentials incorrect');
     }
     const isCorrectPassword = await argon.verify(user.hash, dto.password);
 
     if (!isCorrectPassword) {
+      this.logger.error('Credentials incorrect');
       throw new ForbiddenException('Credentials incorrect');
     }
     const tokens = await this.signTokens(user._id, user.email);
@@ -60,17 +65,18 @@ export class AuthService {
   }
 
   async logout(user: User) {
-    await this.userModule.findOneAndUpdate(user, { hashedRt: null });
+    await this.userModel.findOneAndUpdate(user, { hashedRt: null });
   }
 
   async refreshTokens(user: User, refresh_token: string) {
-    const userObj = await this.userModule.findOne({ email: user.email });
+    const userObj = await this.userModel.findOne({ email: user.email });
     if (!userObj) {
+      this.logger.error('Invalid user');
       throw new ForbiddenException('Invalid user');
     }
-    console.log(userObj.hashedRt);
     const rtMaches = await argon.verify(userObj.hashedRt, refresh_token);
     if (!rtMaches) {
+      this.logger.error('Invalid refresh token');
       throw new ForbiddenException('Invalid refresh token');
     }
     const tokens = await this.signTokens(userObj._id, user.email);
@@ -80,7 +86,7 @@ export class AuthService {
 
   async refreshRtHash(userId: Types.ObjectId, refreshToken: string) {
     const hash = await argon.hash(refreshToken);
-    await this.userModule.updateOne({ _id: userId }, { hashedRt: hash });
+    await this.userModel.updateOne({ _id: userId }, { hashedRt: hash });
   }
 
   async signTokens(userId: Types.ObjectId, email: string): Promise<Tokens> {
