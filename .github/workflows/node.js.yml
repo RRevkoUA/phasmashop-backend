@@ -12,13 +12,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22.x]
         test-file: 
-          - './test/e2e/auth.e2e-spec.ts'
-          - './test/e2e/users.e2e-spec.ts'
-          - './test/e2e/category.e2e-spec.ts'
-          - './test/e2e/subcategory.e2e-spec.ts'
-          - './test/e2e/tag.e2e-spec.ts'
+          - 'auth'
+          - 'users'
+          - 'category'
+          - 'subcategory'
+          - 'tag'
+          
 
     steps:
     - uses: actions/checkout@v4
@@ -34,4 +34,4 @@ jobs:
 
     - name: Run E2E Test ${{ matrix.test-file }}
       run: |
-        npm run test:e2e:ci -- --runTestsByPath ${{ matrix.test-file }}
+        npm run test:e2e:ci -- --runTestsByPath ./test/e2e/${{ matrix.test-file }}.e2e-spec.ts
