@@ -290,7 +290,7 @@ export class TestTemplates {
       params?: { role?: RoleEnum; status?: HttpStatus },
     ) {
       return this.#deleteTest(
-        deleteUnit,
+        this.uri + deleteUnit,
         params?.status || HttpStatus.OK,
         params?.role,
       );
@@ -298,7 +298,7 @@ export class TestTemplates {
 
     failedUnauthorized(deleteUnit: string, params?: { status?: HttpStatus }) {
       return this.#deleteTest(
-        deleteUnit,
+        this.uri + deleteUnit,
         params?.status || HttpStatus.UNAUTHORIZED,
       );
     }
@@ -309,7 +309,7 @@ export class TestTemplates {
       status?: HttpStatus;
     }) {
       return this.#deleteTest(
-        params.deleteUnit,
+        this.uri + params.deleteUnit,
         params?.status || HttpStatus.UNAUTHORIZED,
         params.role,
       );
@@ -320,7 +320,7 @@ export class TestTemplates {
       status?: HttpStatus;
     }) {
       return this.#deleteTest(
-        deleteUnit,
+        this.uri + deleteUnit,
         params?.status || HttpStatus.NOT_FOUND,
         params?.role,
       );
