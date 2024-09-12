@@ -3,6 +3,7 @@ import { CharacteristicService } from './characteristic.service';
 import { CharacteristicController } from './characteristic.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Characteristic, CharacteristicSchema } from 'src/common/schemas';
+import { CharacteristicSeed } from 'src/common/seeders';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { Characteristic, CharacteristicSchema } from 'src/common/schemas';
     ]),
   ],
   controllers: [CharacteristicController],
-  providers: [CharacteristicService],
+  providers: [CharacteristicService, CharacteristicSeed],
   exports: [CharacteristicService],
 })
 export class CharacteristicModule {}
