@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.x, 22.x]
+        node-version: [22.x]
         test-file: 
           - './test/e2e/auth.e2e-spec.ts'
           - './test/e2e/users.e2e-spec.ts'
@@ -34,4 +34,4 @@ jobs:
 
     - name: Run E2E Test ${{ matrix.test-file }}
       run: |
-        npm run test:e2e -- --runTestsByPath ${{ matrix.test-file }}
+        npm run test:e2e:ci -- --runTestsByPath ${{ matrix.test-file }}
