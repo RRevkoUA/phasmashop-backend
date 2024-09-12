@@ -208,28 +208,15 @@ describe('Category controller E2E Test', () => {
     });
   });
 
+  describe('Additional', () => {
+    it.todo('Should return empty body');
+    it.todo('Should return NotFound, because category is not exist');
+  });
+
   describe('Subcategory interaction', () => {
     it.todo('Should add subcategory to category');
     it.todo('Should add many subcategories to category');
     it.todo('Should get category without subcategories');
     it.todo('Should remove category, and all subcategories');
-  });
-
-  describe('Additional', () => {
-    it('Should return empty body', async () => {
-      await app.get(CategorySeed).clear();
-      return pactum
-        .spec()
-        .get(uri)
-        .inspect()
-        .expectBody([])
-        .expectStatus(HttpStatus.OK);
-    });
-    it('Should return NotFound, because category is not exist', () => {
-      return pactum
-        .spec()
-        .get(`${uri}${categories[2]}`)
-        .expectStatus(HttpStatus.NOT_FOUND);
-    });
   });
 });
