@@ -1,3 +1,4 @@
+import { th } from '@faker-js/faker';
 import { Logger } from '@nestjs/common';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
@@ -18,11 +19,15 @@ export default async function globalSetup() {
       Logger.log(
         'MongoDB server is running on port ' + server.instanceInfo.port,
       );
+      if (server.instanceInfo.port != dbPort) {
+        Logger.error('MongoDB server is not running on port ' + dbPort);
+        process.exit(1);
+      }
       return server;
     })
     .catch((err) => {
       Logger.error(err);
-      return undefined;
+      process.exit(1);
     });
 }
 
