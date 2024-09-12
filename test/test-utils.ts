@@ -194,7 +194,7 @@ export class TestTemplates {
       }
       return test;
     }
-    async passUpdate(params: {
+    passUpdate(params: {
       updatingUnit: string;
       dto: any;
       role?: RoleEnum;
@@ -207,7 +207,7 @@ export class TestTemplates {
       ).withBody(params.dto);
     }
 
-    async failedUnauthorized(params: {
+    failedUnauthorized(params: {
       updatingUnit: string;
       dto: any;
       status?: HttpStatus;
@@ -218,7 +218,7 @@ export class TestTemplates {
       ).withBody(params.dto);
     }
 
-    async failedHaveNotPermission(params: {
+    failedHaveNotPermission(params: {
       updatingUnit: string;
       dto: any;
       role: RoleEnum;
@@ -231,7 +231,7 @@ export class TestTemplates {
       ).withBody(params.dto);
     }
 
-    async failedNotFound(params: {
+    failedNotFound(params: {
       updatingUnit: string;
       dto: any;
       role?: RoleEnum;
@@ -244,7 +244,7 @@ export class TestTemplates {
       ).withBody(params.dto);
     }
 
-    async passUpdateEmpty(
+    passUpdateEmpty(
       updatingUnit: string,
       params?: { role?: RoleEnum; status?: HttpStatus },
     ) {
@@ -255,7 +255,7 @@ export class TestTemplates {
       );
     }
 
-    async failedUnique(params: {
+    failedUnique(params: {
       updatingUnit: string;
       dto: any;
       role?: RoleEnum;
