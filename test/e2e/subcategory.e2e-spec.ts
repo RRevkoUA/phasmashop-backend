@@ -55,7 +55,7 @@ describe('Subcategory controller E2E Test', () => {
         .spec()
         .post(uri)
         .withBody(dto)
-        .withCookies('access_token', cookie.MODERATOR)
+        .withCookies('access_token', cookie.MODERATOR.access_token)
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
     it('Should create new subcategory', () => {
