@@ -166,7 +166,7 @@ export class TestTemplates {
       return this.#get(params?.status || HttpStatus.UNAUTHORIZED);
     }
 
-    failedHaveNotPermission(params: { role: RoleEnum; status?: HttpStatus }) {
+    failedHaveNoPermission(params: { role: RoleEnum; status?: HttpStatus }) {
       return this.#get(params?.status || HttpStatus.UNAUTHORIZED, params.role);
     }
 
@@ -218,7 +218,7 @@ export class TestTemplates {
       ).withBody(params.dto);
     }
 
-    failedHaveNotPermission(params: {
+    failedHaveNoPermission(params: {
       updatingUnit: string;
       dto: any;
       role: RoleEnum;
@@ -303,7 +303,7 @@ export class TestTemplates {
       );
     }
 
-    failedHaveNotPermission(params: {
+    failedHaveNoPermission(params: {
       deleteUnit: string;
       role: RoleEnum;
       status?: HttpStatus;
