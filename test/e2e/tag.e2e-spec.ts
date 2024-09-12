@@ -169,10 +169,33 @@ describe('TagController E2E Test', () => {
   });
 
   describe('Tag deleting', () => {
-    it.todo('Should not delete tag, UNAUTHORIZED');
-    it.todo('Should not delete tag, Have not permission');
-    it.todo('Should delete tag');
-    it.todo('Should not delete tag, NOT FOUND');
+    it('Should not delete tag, UNAUTHORIZED', () => {
+      return pactum
+        .spec()
+        .delete(uri + tags[3])
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should not delete tag, Have not permission', () => {
+      return pactum
+        .spec()
+        .delete(uri + tags[3])
+        .withCookies('access_token', users.MODERATOR.access_token)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+    it('Should delete tag', () => {
+      return pactum
+        .spec()
+        .delete(uri + tags[3])
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.OK);
+    });
+    it('Should not delete tag, NOT FOUND', () => {
+      return pactum
+        .spec()
+        .delete(uri + tags[3])
+        .withCookies('access_token', users.ADMIN.access_token)
+        .expectStatus(HttpStatus.NOT_FOUND);
+    });
   });
 
   describe('Tag clearing', () => {
