@@ -17,7 +17,7 @@ jobs:
           - 'category'
           - 'subcategory'
           - 'tag'
-          
+          - 'characteristic'          
 
     steps:
     - uses: actions/checkout@v4
