@@ -13,6 +13,12 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x, 22.x]
+        test-file: 
+          - './test/e2e/auth.e2e-spec.ts'
+          - './test/e2e/users.e2e-spec.ts'
+          - './test/e2e/category.e2e-spec.ts'
+          - './test/e2e/subcategory.e2e-spec.ts'
+          - './test/e2e/tag.e2e-spec.ts'
 
     steps:
     - uses: actions/checkout@v4
@@ -25,16 +31,6 @@ jobs:
     - run: npm ci
     - run: mkdir ./test/database
     - run: npm run build --if-present
-
-    - name: Generate E2E test files list
-      id: generate-files
-      run: |
-        FILES=$(find ./test/e2e -name '*.e2e-spec.ts')
-        echo "::set-output name=test_files::$FILES"
-
-    - name: Set test matrix
-      run: |
-        echo "test-file=${{ steps.generate-files.outputs.test_files }}" >> $GITHUB_ENV
 
     - name: Run E2E Test ${{ matrix.test-file }}
       run: |
