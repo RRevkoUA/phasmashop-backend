@@ -1,8 +1,8 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
+import { createTestingModule } from '../test-utils';
 import * as pactum from 'pactum';
-import { createTestingModule } from './test-utils';
 
 describe('AuthController E2E Test', () => {
   let app: INestApplication;

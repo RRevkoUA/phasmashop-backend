@@ -3,7 +3,7 @@ import { HttpStatus, INestApplication } from '@nestjs/common';
 import { CreateSubcategoryDto } from 'src/subcategory/dto';
 import { CategorySeed, SubcategorySeed, UserSeed } from 'src/common/seeders';
 import { Tokens } from 'src/auth/types';
-import { createTestingModule } from './test-utils';
+import { createTestingModule } from '../test-utils';
 import * as pactum from 'pactum';
 
 describe('Subcategory controller E2E Test', () => {

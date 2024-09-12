@@ -4,7 +4,7 @@ import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
 import { UserSeed } from 'src/common/seeders/user.seeder';
 import { RoleEnum } from 'src/common/enums';
-import { createTestingModule } from './test-utils';
+import { createTestingModule } from '../test-utils';
 
 describe('UsersController E2E Test', () => {
   let app: INestApplication;

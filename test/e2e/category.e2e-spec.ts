@@ -4,7 +4,7 @@ import { CreateCategoryDto } from 'src/category/dto';
 import { UserSeed, CategorySeed } from 'src/common/seeders';
 import { RoleEnum } from 'src/common/enums';
 import { Tokens } from 'src/auth/types';
-import { createTestingModule } from './test-utils';
+import { createTestingModule } from '../test-utils';
 import * as pactum from 'pactum';
 
 describe('Category controller E2E Test', () => {
