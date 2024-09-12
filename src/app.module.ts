@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -15,8 +14,7 @@ import { ProductModule } from './product/product.module';
 import { OrderModule } from './order/order.module';
 import { EncryptionModule } from './encryption/encryption.module';
 import { TagModule } from './tag/tag.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
-import { EncryptionInterceptor } from './common/interceptor/encryption.interceptor';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -44,12 +42,6 @@ import { EncryptionInterceptor } from './common/interceptor/encryption.intercept
     EncryptionModule,
   ],
   controllers: [AppController],
-  providers: [
-    AppService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: EncryptionInterceptor,
-    },
-  ],
+  providers: [AppService],
 })
 export class AppModule {}

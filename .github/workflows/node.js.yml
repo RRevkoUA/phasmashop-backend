@@ -1,0 +1,36 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master", "dev" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-file: 
+          - 'auth'
+          - 'users'
+          - 'category'
+          - 'subcategory'
+          - 'tag'
+          - 'characteristic'          
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
+      with:   
+        node-version: 22.x
+        cache: 'npm'
+
+    - run: npm ci
+    - run: mkdir ./test/database
+    - run: npm run build --if-present
+
+    - name: Run E2E Test ${{ matrix.test-file }}
+      run: |
+        npm run test:e2e:ci -- --runTestsByPath ./test/e2e/${{ matrix.test-file }}.e2e-spec.ts

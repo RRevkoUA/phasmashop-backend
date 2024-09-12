@@ -1,14 +1,12 @@
-import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from 'src/app.module';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
-import mongoose from 'mongoose';
 import { UserSeed } from 'src/common/seeders/user.seeder';
-import * as cookieParser from 'cookie-parser';
+import { RoleEnum } from 'src/common/enums';
+import { createTestingModule } from '../test-utils';
 
-describe('AuthController E2E Test', () => {
+describe('UsersController E2E Test', () => {
   let app: INestApplication;
   let newPassword;
   let cookie;
@@ -18,33 +16,18 @@ describe('AuthController E2E Test', () => {
   const host = `http://localhost:${port}/`;
   const dto: SignupAuthDto = {
     email: faker.internet.email(),
-    password: faker.internet.password(),
+    password: faker.internet.password({ length: 8, prefix: 'Aa1' }),
     username: faker.internet.userName(),
   };
 
   beforeAll(async () => {
-    await mongoose.connect(process.env.DB_URL);
-    const db = mongoose.connection.db;
-    await db.dropDatabase();
-    mongoose.connection.close();
-
-    const moduleRef: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = moduleRef.createNestApplication();
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-      }),
-    );
-    await app.init();
-    await app.listen(port);
+    const { app: appInstance } = await createTestingModule('users-test', port);
+    app = appInstance;
     pactum.request.setBaseUrl(host);
   });
 
   afterAll(async () => {
-    app.close();
+    await app.close();
   });
 
   describe('users/me e2e testing', () => {
@@ -89,7 +72,7 @@ describe('AuthController E2E Test', () => {
     });
 
     it('Should patch user`s password', () => {
-      newPassword = faker.internet.password();
+      newPassword = faker.internet.password({ length: 8, prefix: 'Aa1' });
       return pactum
         .spec()
         .patch(path)
@@ -137,9 +120,23 @@ describe('AuthController E2E Test', () => {
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
 
+    it('Should not get users NO PERMISSION', async () => {
+      try {
+        cookie = await app.get(UserSeed).seed(1, [RoleEnum.USER]);
+      } catch (err) {
+        console.error(err);
+      }
+      return pactum
+        .spec()
+        .get(uri)
+        .withCookies('access_token', cookie.access_token)
+        .expectStatus(HttpStatus.UNAUTHORIZED);
+    });
+
+    // TODO :: Issue#76
     it('Should get users', async () => {
       try {
-        cookie = await app.get(UserSeed).seed(20);
+        cookie = await app.get(UserSeed).seed(20, [RoleEnum.MODERATOR]);
       } catch (err) {
         console.error(err);
       }
@@ -148,7 +145,7 @@ describe('AuthController E2E Test', () => {
         .get(uri)
         .withCookies('access_token', cookie.access_token)
         .stores('username', '[0].username')
-        .expectJsonLength(20)
+        .expectJsonLength(21)
         .expectStatus(HttpStatus.OK);
     });
 

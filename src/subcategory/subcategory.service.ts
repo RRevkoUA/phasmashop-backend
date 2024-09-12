@@ -36,6 +36,10 @@ export class SubcategoryService {
       this.logger.verbose('Subcategory' + subcategory.name + 'created');
       return subcategory;
     } catch (error) {
+      if (error.message === 'Category not Found') {
+        this.logger.error('Category not Found');
+        throw error;
+      }
       this.logger.error('Subcategory already exists');
       throw new ForbiddenException('Subcategory already exists');
     }
@@ -84,8 +88,8 @@ export class SubcategoryService {
         { new: true },
       );
     } catch (error) {
-      this.logger.error('Subcategory already exists');
-      throw new ForbiddenException('Subcategory already exists');
+      this.logger.error(error);
+      throw new ForbiddenException(error);
     }
   }
 

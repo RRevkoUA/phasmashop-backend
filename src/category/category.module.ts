@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Category, CategorySchema } from 'src/common/schemas';
 import { CategoryService } from './category.service';
 import { SubcategoryModule } from 'src/subcategory/subcategory.module';
+import { CategorySeed } from 'src/common/seeders';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { SubcategoryModule } from 'src/subcategory/subcategory.module';
     forwardRef(() => SubcategoryModule),
   ],
   controllers: [CategoryController],
-  providers: [CategoryService],
+  providers: [CategoryService, CategorySeed],
   exports: [CategoryService],
 })
 export class CategoryModule {}

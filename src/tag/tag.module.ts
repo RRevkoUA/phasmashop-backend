@@ -3,6 +3,7 @@ import { TagService } from './tag.service';
 import { TagController } from './tag.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Tag, TagSchema } from 'src/common/schemas';
+import { TagSeed } from 'src/common/seeders/tag.seeder';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { Tag, TagSchema } from 'src/common/schemas';
     ]),
   ],
   controllers: [TagController],
-  providers: [TagService],
+  providers: [TagService, TagSeed],
   exports: [TagService],
 })
 export class TagModule {}

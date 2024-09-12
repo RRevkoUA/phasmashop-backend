@@ -53,11 +53,12 @@ export class TagService {
         new: true,
       });
     } catch (error) {
-      if (error.status === 404) {
-        throw new NotFoundException(error.message);
+      if (error.code === 11000) {
+        this.logger.error('Tag already exists');
+        throw new ForbiddenException('Tag already exists');
       }
       this.logger.error('Something went wrong');
-      throw new ForbiddenException('Something went wrong');
+      throw error;
     }
   }
 

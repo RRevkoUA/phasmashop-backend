@@ -23,7 +23,7 @@ export class EncryptionInterceptor implements NestInterceptor {
     }
 
     Logger.debug(EncryptionInterceptor.name, req.body);
-    if (req.headers['X-Swagger-Request'] === 'true') {
+    if (req.headers['x-swagger-request'] === 'true') {
       Logger.debug('Swagger request - skipping encryption');
       return next.handle();
     }

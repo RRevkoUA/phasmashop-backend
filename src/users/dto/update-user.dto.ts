@@ -1,9 +1,10 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { SignupAuthDto } from 'src/auth/dto';
 
 export class UpdateUserDto extends PartialType(SignupAuthDto) {
+  @IsOptional()
   @IsString({ each: true })
   @ApiProperty({
     example: ['order1', 'order2'],
