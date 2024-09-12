@@ -11,7 +11,7 @@ import * as bodyParser from 'body-parser';
 import * as cookieParser from 'cookie-parser';
 import * as pactum from 'pactum';
 import { Tokens } from 'src/auth/types';
-import { th } from '@faker-js/faker';
+import { faker, th } from '@faker-js/faker';
 import { RoleEnum } from 'src/common/enums';
 
 export async function createTestingModule(dbName: string, appPort: number) {
@@ -151,12 +151,12 @@ export class TestTemplates {
       return this.#get(status || HttpStatus.UNAUTHORIZED);
     }
 
-    async failedHaveNotPermission(role: RoleEnum, status?: HttpStatus) {
+    failedHaveNotPermission(role: RoleEnum, status?: HttpStatus) {
       return this.#get(status || HttpStatus.UNAUTHORIZED, role);
     }
 
-    async failedNotFound(id: string, role?: RoleEnum, status?: HttpStatus) {
-      return this.#get(status || HttpStatus.NOT_FOUND, role, this.uri + id);
+    failedNotFound(role?: RoleEnum, status?: HttpStatus) {
+      return this.#get(status || HttpStatus.NOT_FOUND, role, this.uri + faker.lorem.word());
     }
   };
 
