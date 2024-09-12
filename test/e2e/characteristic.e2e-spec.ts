@@ -2,15 +2,16 @@ import { faker } from "@faker-js/faker";
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Tokens } from "src/auth/types";
 import { CreateCharacteristicDto } from "src/characteristic/dto";
-import { UserSeed } from "src/common/seeders";
+import { UserSeed, CharacteristicSeed} from "src/common/seeders";
 import { createTestingModule, TestTemplates } from "../test-utils";
 import * as pactum from 'pactum';
 import { RoleEnum } from "src/common/enums";
+import { count } from "console";
 
 describe('Characteristic E2E Test', () => {
 let app: INestApplication;
 let cookie: { [key: string]: Tokens } = {};
-let Characteristics: string[];
+let characteristics: string[];
 let test: TestTemplates;
 
 const port = Number.parseInt(process.env.APP_PORT) + 50;
@@ -27,6 +28,7 @@ beforeAll(async () => {
   app = appInstance;
   try {
     cookie = await app.get(UserSeed).seedRoles();
+    characteristics = await app.get(CharacteristicSeed).seed(10);
   } catch (err) {
     throw err;
   }
@@ -43,10 +45,10 @@ describe('Characteristic creating', () => {
     return test.create.failedUnauthorized();
   });
   it('Should not create new characteristic, Have not permission', () => {
-    return test.create.failedHaveNoPermission(RoleEnum.MODERATOR);
+    return test.create.failedHaveNoPermission({role: RoleEnum.MODERATOR});
   });
   it('Should create new characteristic', () => {
-    return test.create.passCreate(RoleEnum.ADMIN);
+    return test.create.passCreate({role: RoleEnum.ADMIN});
   });
 });
 

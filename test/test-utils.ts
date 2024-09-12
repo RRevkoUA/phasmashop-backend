@@ -84,36 +84,47 @@ export class TestTemplates {
       }
       return test;
     }
-    passCreate(role?: RoleEnum, status?: HttpStatus) {
-      return this.#create(status || HttpStatus.CREATED, role).withBody(
+    passCreate(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#create(
+        params?.status || HttpStatus.CREATED,
+        params?.role,
+      ).withBody(this.dto);
+    }
+
+    failedUnauthorized(params?: { status?: HttpStatus }) {
+      return this.#create(params?.status || HttpStatus.UNAUTHORIZED).withBody(
         this.dto,
       );
     }
 
-    failedUnauthorized(status?: HttpStatus) {
-      return this.#create(status || HttpStatus.UNAUTHORIZED).withBody(this.dto);
+    failedHaveNoPermission(params: { role: RoleEnum; status?: HttpStatus }) {
+      return this.#create(
+        params?.status || HttpStatus.UNAUTHORIZED,
+        params.role,
+      ).withBody(this.dto);
     }
 
-    failedHaveNoPermission(role: RoleEnum, status?: HttpStatus) {
-      return this.#create(status || HttpStatus.UNAUTHORIZED, role).withBody(
-        this.dto,
-      );
+    failedAlreadyExists(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#create(
+        params?.status || HttpStatus.FORBIDDEN,
+        params?.role,
+      ).withBody(this.dto);
     }
 
-    failedAlreadyExists(role?: RoleEnum, status?: HttpStatus) {
-      return this.#create(status || HttpStatus.FORBIDDEN, role).withBody(
-        this.dto,
-      );
-    }
-
-    failedBadRequest(role?: RoleEnum, status?: HttpStatus) {
-      return this.#create(status || HttpStatus.BAD_REQUEST, role).withBody({
+    failedBadRequest(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#create(
+        params?.status || HttpStatus.BAD_REQUEST,
+        params?.role,
+      ).withBody({
         someRandomFieldName: 'a',
       });
     }
 
-    failedEmpty(role?: RoleEnum, status?: HttpStatus) {
-      return this.#create(status || HttpStatus.BAD_REQUEST, role);
+    failedEmpty(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#create(
+        params?.status || HttpStatus.BAD_REQUEST,
+        params?.role,
+      );
     }
   };
 
@@ -135,28 +146,36 @@ export class TestTemplates {
       }
       return test;
     }
-    passGet(status?: HttpStatus, role?: RoleEnum, count?: number) {
-      let test = this.#get(status || HttpStatus.OK, role);
-      if (count) {
-        test = test.expectJsonLength(count);
+    passGet(params?: { status?: HttpStatus; role?: RoleEnum; count?: number }) {
+      let test = this.#get(params?.status || HttpStatus.OK, params?.role);
+      if (params?.count) {
+        test = test.expectJsonLength(params.count);
       }
       return test;
     }
 
-    passGetById(id: string, role?: RoleEnum, status?: HttpStatus) {
-      return this.#get(status || HttpStatus.OK, role, this.uri + id);
+    passGetById(id: string, params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#get(
+        params?.status || HttpStatus.OK,
+        params?.role,
+        this.uri + id,
+      );
     }
 
-    failedUnauthorized(status?: HttpStatus) {
-      return this.#get(status || HttpStatus.UNAUTHORIZED);
+    failedUnauthorized(params?: { status?: HttpStatus }) {
+      return this.#get(params?.status || HttpStatus.UNAUTHORIZED);
     }
 
-    failedHaveNotPermission(role: RoleEnum, status?: HttpStatus) {
-      return this.#get(status || HttpStatus.UNAUTHORIZED, role);
+    failedHaveNotPermission(params: { role: RoleEnum; status?: HttpStatus }) {
+      return this.#get(params?.status || HttpStatus.UNAUTHORIZED, params.role);
     }
 
-    failedNotFound(role?: RoleEnum, status?: HttpStatus) {
-      return this.#get(status || HttpStatus.NOT_FOUND, role, this.uri + faker.lorem.word());
+    failedNotFound(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#get(
+        params?.status || HttpStatus.NOT_FOUND,
+        params?.role,
+        this.uri + faker.lorem.word(),
+      );
     }
   };
 
@@ -175,38 +194,61 @@ export class TestTemplates {
       }
       return test;
     }
-    async passUpdate(dto: any, role?: RoleEnum, status?: HttpStatus) {
-      return this.#updateTest(status || HttpStatus.OK, role).withBody(dto);
+    async passUpdate(params: {
+      dto: any;
+      role?: RoleEnum;
+      status?: HttpStatus;
+    }) {
+      return this.#updateTest(
+        params?.status || HttpStatus.OK,
+        params?.role,
+      ).withBody(params.dto);
     }
 
-    async failedUnauthorized(dto: any, status?: HttpStatus) {
-      return this.#updateTest(status || HttpStatus.UNAUTHORIZED).withBody(dto);
+    async failedUnauthorized(params: { dto: any; status?: HttpStatus }) {
+      return this.#updateTest(
+        params?.status || HttpStatus.UNAUTHORIZED,
+      ).withBody(params.dto);
     }
 
-    async failedHaveNotPermission(
-      dto: any,
-      role: RoleEnum,
-      status?: HttpStatus,
-    ) {
-      return this.#updateTest(status || HttpStatus.UNAUTHORIZED, role).withBody(
-        dto,
+    async failedHaveNotPermission(params: {
+      dto: any;
+      role: RoleEnum;
+      status?: HttpStatus;
+    }) {
+      return this.#updateTest(
+        params?.status || HttpStatus.UNAUTHORIZED,
+        params.role,
+      ).withBody(params.dto);
+    }
+
+    async failedNotFound(params: {
+      dto: any;
+      role?: RoleEnum;
+      status?: HttpStatus;
+    }) {
+      return this.#updateTest(
+        params?.status || HttpStatus.NOT_FOUND,
+        params?.role,
+      ).withBody(params.dto);
+    }
+
+    async passUpdateEmpty(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#updateTest(
+        params?.status || HttpStatus.NOT_FOUND,
+        params?.role,
       );
     }
 
-    async failedNotFound(dto: any, role?: RoleEnum, status?: HttpStatus) {
-      return this.#updateTest(status || HttpStatus.NOT_FOUND, role).withBody(
-        dto,
-      );
-    }
-
-    async passUpdateEmpty(role?: RoleEnum, status?: HttpStatus) {
-      return this.#updateTest(status || HttpStatus.NOT_FOUND, role);
-    }
-
-    async failedUnique(dto: any, role?: RoleEnum, status?: HttpStatus) {
-      return this.#updateTest(status || HttpStatus.FORBIDDEN, role).withBody(
-        dto,
-      );
+    async failedUnique(params: {
+      dto: any;
+      role?: RoleEnum;
+      status?: HttpStatus;
+    }) {
+      return this.#updateTest(
+        params?.status || HttpStatus.FORBIDDEN,
+        params?.role,
+      ).withBody(params.dto);
     }
   };
 
@@ -226,20 +268,26 @@ export class TestTemplates {
       return test;
     }
 
-    passDelete(role?: RoleEnum, status?: HttpStatus) {
-      return this.#deleteTest(status || HttpStatus.OK, role);
+    passDelete(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#deleteTest(params?.status || HttpStatus.OK, params?.role);
     }
 
-    failedUnauthorized(status?: HttpStatus) {
-      return this.#deleteTest(status || HttpStatus.UNAUTHORIZED);
+    failedUnauthorized(params?: { status?: HttpStatus }) {
+      return this.#deleteTest(params?.status || HttpStatus.UNAUTHORIZED);
     }
 
-    failedHaveNotPermission(role: RoleEnum, status?: HttpStatus) {
-      return this.#deleteTest(status || HttpStatus.UNAUTHORIZED, role);
+    failedHaveNotPermission(params: { role: RoleEnum; status?: HttpStatus }) {
+      return this.#deleteTest(
+        params?.status || HttpStatus.UNAUTHORIZED,
+        params.role,
+      );
     }
 
-    failedNotFound(role?: RoleEnum, status?: HttpStatus) {
-      return this.#deleteTest(status || HttpStatus.NOT_FOUND, role);
+    failedNotFound(params?: { role?: RoleEnum; status?: HttpStatus }) {
+      return this.#deleteTest(
+        params?.status || HttpStatus.NOT_FOUND,
+        params?.role,
+      );
     }
   };
 }
