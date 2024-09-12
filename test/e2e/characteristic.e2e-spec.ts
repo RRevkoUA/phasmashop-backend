@@ -51,9 +51,15 @@ describe('Characteristic creating', () => {
 });
 
 describe('Characteristic getting', () => {
-  it.todo('Should get all characteristics');
-  it.todo('Should get characteristic by id');
-  it.todo('Should not get characteristic by id, NOT FOUND');
+  it('Should get all characteristics', () => {
+    return test.read.passGet();
+  });
+  it('Should get characteristic by id', () => {
+    return test.read.passGetById(dto.name);
+  });
+  it('Should not get characteristic by id, NOT FOUND', () => {
+    return test.read.failedNotFound();
+  });
 });
 
 describe('Characteristic updating', () => {
