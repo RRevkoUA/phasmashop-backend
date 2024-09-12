@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import { Tokens } from "src/auth/types";
-import { CreateCharacteristicDto } from "src/characteristic/dto";
+import { CreateCharacteristicDto, UpdateCharacteristicDto } from "src/characteristic/dto";
 import { UserSeed, CharacteristicSeed} from "src/common/seeders";
 import { createTestingModule, TestTemplates } from "../test-utils";
 import * as pactum from 'pactum';
@@ -65,8 +65,24 @@ describe('Characteristic getting', () => {
 });
 
 describe('Characteristic updating', () => {
-  it.todo('Should not update characteristic, UNAUTHORIZED');
-  it.todo('Should not update characteristic, Have not permission');
+  const updateDto: UpdateCharacteristicDto = {
+    name: faker.lorem.word({ length: { min: 6, max: 50 } }),
+    possibleValue: faker.helpers.arrayElements([faker.lorem.word()], 5)
+  }
+  it('Should not update characteristic, UNAUTHORIZED', () => {
+    return test.update.failedUnauthorized({
+      updatingUnit: faker.lorem.word({ length: { min: 6, max: 50 } }),
+      dto: updateDto,
+    });
+  });
+  it('Should not update characteristic, Have not permission', () => {
+    return test.update.failedHaveNoPermission({
+      role: RoleEnum.MODERATOR,
+      updatingUnit: faker.lorem.word({ length: { min: 6, max: 50 } }),
+      dto: updateDto,
+    });
+  });
+});
   it.todo('Should update characteristic, when body is empty');
   it.todo("Should update characteristic's description");
   it.todo("Should update characteristic's name");
@@ -86,7 +102,4 @@ describe('Characteristic deleting', () => {
 
 describe('Characteristic clearing', () => {
   it.todo('Should get no characteristics');
-});
-
-
 });

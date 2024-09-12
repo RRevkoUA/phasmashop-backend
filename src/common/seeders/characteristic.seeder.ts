@@ -16,7 +16,9 @@ export class CharacteristicSeed {
       while (amount) {
         const characteristic = new this.characteristicModel({
           name: faker.lorem.word({ length: { min: 3, max: 30 } }),
-          isAvailable: true,
+          possibleValue: faker.helpers.arrayElements(
+            Array.from({ length: 10 }, () => faker.lorem.word()), 5
+          ),
         });
         await characteristic.save();
         amount--;
