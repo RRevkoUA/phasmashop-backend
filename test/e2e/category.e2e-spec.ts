@@ -218,12 +218,7 @@ describe('Category controller E2E Test', () => {
   describe('Additional', () => {
     it('Should return empty body', async () => {
       await app.get(CategorySeed).clear();
-      return pactum
-        .spec()
-        .get(uri)
-        .inspect()
-        .expectBody([])
-        .expectStatus(HttpStatus.OK);
+      return pactum.spec().get(uri).expectBody([]).expectStatus(HttpStatus.OK);
     });
     it('Should return NotFound, because category is not exist', () => {
       return pactum
