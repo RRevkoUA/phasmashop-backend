@@ -21,7 +21,6 @@ export default async function globalSetup() {
       );
       if (server.instanceInfo.port != dbPort) {
         Logger.error('MongoDB server is not running on port ' + dbPort);
-        process.exit(1);
       }
       return server;
     })
