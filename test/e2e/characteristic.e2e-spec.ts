@@ -141,13 +141,26 @@ describe('Characteristic E2E Test', () => {
     });
   });
   describe('Characteristic deleting', () => {
-    it.todo('Should not delete characteristic, UNAUTHORIZED');
-    it.todo('Should not delete characteristic, Have not permission');
-    it.todo('Should delete characteristic');
-    it.todo('Should not delete characteristic, NOT FOUND');
+    it('Should not delete characteristic, UNAUTHORIZED', () => {
+      return test.delete.failedUnauthorized(characteristics[1]);
+    });
+    it('Should not delete characteristic, Have not permission', () => {
+      return test.delete.failedHaveNoPermission({
+        deleteUnit: characteristics[1],
+        role: RoleEnum.MODERATOR,
+      });
+    });
+    it('Should delete characteristic', () => {
+      return test.delete.passDelete(characteristics[1], { role: RoleEnum.ADMIN });
+    });
+    it('Should not delete characteristic, NOT FOUND', () => {
+      return test.delete.failedNotFound(characteristics[1], { role: RoleEnum.ADMIN });
+    });
   });
 
   describe('Characteristic clearing', () => {
-    it.todo('Should get no characteristics');
+    it('Should get no characteristics', () => {
+      return test.read.passGet({ role: RoleEnum.ADMIN, count: 0 });
+    });
   });
 });
