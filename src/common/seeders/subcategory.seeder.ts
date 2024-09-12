@@ -30,4 +30,8 @@ export class SubcategorySeed {
       return reject('Cannot seed categories');
     });
   }
+
+  async clear() {
+    return await this.subcategoryModel.deleteMany({});
+  }
 }

@@ -26,4 +26,8 @@ export class CategorySeed {
       return reject('Cannot seed categories');
     });
   }
+
+  async clear() {
+    return await this.categoryModule.deleteMany({});
+  }
 }

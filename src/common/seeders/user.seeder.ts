@@ -55,4 +55,8 @@ export class UserSeed {
       return resolve(tokens);
     });
   }
+
+  async clear() {
+    return await this.userModule.deleteMany({});
+  }
 }
