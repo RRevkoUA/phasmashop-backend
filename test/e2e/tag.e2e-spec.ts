@@ -199,6 +199,9 @@ describe('TagController E2E Test', () => {
   });
 
   describe('Tag clearing', () => {
-    it.todo('Should get no tags');
+    it('Should get no tags', async () => {
+      await app.get(TagSeed).clear();
+      return pactum.spec().get(uri).expectJson([]).expectStatus(HttpStatus.OK);
+    });
   });
 });
