@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Characteristic } from '../schemas';
-import { Model } from 'mongoose';
+import { Document, Model } from 'mongoose';
 import { faker } from '@faker-js/faker';
 
 @Injectable()
@@ -11,26 +11,27 @@ export class CharacteristicSeed {
     private characteristicModel: Model<Characteristic>,
   ) {}
 
-  async seed(amount: number): Promise<string[]> {
+  async seed(amount: number): Promise<(Characteristic & Document)[]> {
     return new Promise(async (resolve, reject) => {
       while (amount) {
         const characteristic = new this.characteristicModel({
           name: faker.lorem.word({ length: { min: 3, max: 30 } }),
           possibleValue: faker.helpers.arrayElements(
-            Array.from({ length: 10 }, () => faker.lorem.word()), 5
+            Array.from({ length: 10 }, () => faker.lorem.word()),
+            5,
           ),
         });
         await characteristic.save();
         amount--;
         if (!amount) {
-          return resolve(await this.characteristicModel.distinct('name'));
+          return resolve(this.characteristicModel.find());
         }
       }
-      return resolve([]);
+      return reject('Error while seeding');
     });
   }
 
-  async clear() {
-    return await this.characteristicModel.deleteMany({});
+  async clear(): Promise<{ deletedCount?: number }> {
+    return this.characteristicModel.deleteMany({});
   }
 }
