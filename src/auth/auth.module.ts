@@ -19,5 +19,6 @@ import { UserSeed } from 'src/common/seeders/user.seeder';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, JwtRefreshStrategy, UserSeed],
+  exports: [UserSeed],
 })
 export class AuthModule {}

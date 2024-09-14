@@ -18,6 +18,6 @@ import { SubcategorySeed } from 'src/common/seeders';
   ],
   controllers: [SubcategoryController],
   providers: [SubcategoryService, SubcategorySeed],
-  exports: [SubcategoryService],
+  exports: [SubcategoryService, SubcategorySeed],
 })
 export class SubcategoryModule {}

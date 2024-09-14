@@ -16,6 +16,6 @@ import { TagSeed } from 'src/common/seeders/tag.seeder';
   ],
   controllers: [TagController],
   providers: [TagService, TagSeed],
-  exports: [TagService],
+  exports: [TagService, TagSeed],
 })
 export class TagModule {}
