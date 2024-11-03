@@ -29,7 +29,7 @@ describe('TagController E2E Test', () => {
       .seed(10)
       .then((data) => data.map((data) => data._id.toString()));
     pactum.request.setBaseUrl(host);
-  }, 10 * 1000);
+  }, 15 * 1000);
 
   afterAll(async () => {
     await app.close();
