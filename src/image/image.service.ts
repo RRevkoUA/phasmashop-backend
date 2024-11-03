@@ -36,7 +36,7 @@ export class ImageService {
     throw new NotFoundException('Image not Found');
   }
 
-  async removeMany(ids: Types.ObjectId[], subpath: ImageInterceptorEnum) {
+  async removeMany(ids: Types.ObjectId[], subpath: ImageInterceptorEnum): Promise<any> {
     const images = await this.imageModel.find({ _id: { $in: ids } });
     if (images.length) {
       const path = `${process.cwd()}/images/${subpath}`;
