@@ -5,12 +5,14 @@ import { CategorySeed, SubcategorySeed, UserSeed } from 'src/common/seeders';
 import { Tokens } from 'src/auth/types';
 import { createTestingModule } from '../test-utils';
 import * as pactum from 'pactum';
+import { Category, Subcategory } from 'src/common/schemas';
+import { Document } from 'mongoose';
 
 describe('Subcategory controller E2E Test', () => {
   let app: INestApplication;
   let cookie: { [key: string]: Tokens } = {};
-  let subcategories: string[];
-  let categories: string[];
+  let subcategories: (Subcategory & Document)[];
+  let categories: (Category & Document)[];
 
   const port = Number.parseInt(process.env.APP_PORT) + 30;
   const uri = 'subcategory/';
@@ -28,13 +30,13 @@ describe('Subcategory controller E2E Test', () => {
     );
     app = appInstance;
     try {
-      categories = await app.get(CategorySeed).seed(10);
+      categories = await app.get(CategorySeed).seed(10)
       cookie = await app.get(UserSeed).seedRoles();
-      subcategories = await app.get(SubcategorySeed).seed(10, categories[0]);
+      subcategories = await app.get(SubcategorySeed).seed(10, categories[0].name);
     } catch (err) {
       throw err;
     }
-    dto.category = categories[0];
+    dto.category = categories[0].name;
     pactum.request.setBaseUrl(host);
   }, 10 * 1000);
 
@@ -124,7 +126,7 @@ describe('Subcategory controller E2E Test', () => {
     it('Should get subcategory by id', () => {
       return pactum
         .spec()
-        .get(`${uri}${subcategories[0]}`)
+        .get(`${uri}${subcategories[0].name}`)
         .expectStatus(HttpStatus.OK);
     });
   });
@@ -133,7 +135,7 @@ describe('Subcategory controller E2E Test', () => {
     it('Should not update subcategory, UNAUTHORIZED', () => {
       return pactum
         .spec()
-        .patch(`${uri}${subcategories[0]}`)
+        .patch(`${uri}${subcategories[0].name}`)
         .withBody({
           name: faker.lorem.word({ length: { min: 3, max: 50 } }),
         })
@@ -142,7 +144,7 @@ describe('Subcategory controller E2E Test', () => {
     it('Should not update subcategory, Have not permission', () => {
       return pactum
         .spec()
-        .patch(`${uri}${subcategories[0]}`)
+        .patch(`${uri}${subcategories[0].name}`)
         .withBody({
           name: faker.lorem.word({ length: { min: 3, max: 50 } }),
         })
@@ -152,7 +154,7 @@ describe('Subcategory controller E2E Test', () => {
     it('Should not update subcategory, because name is not unique', () => {
       return pactum
         .spec()
-        .patch(`${uri}${subcategories[0]}`)
+        .patch(`${uri}${subcategories[0].name}`)
         .withBody({
           name: dto.name,
         })
@@ -162,15 +164,15 @@ describe('Subcategory controller E2E Test', () => {
     it('Should not update subcategory, because body is empty', () => {
       return pactum
         .spec()
-        .patch(`${uri}${subcategories[0]}`)
+        .patch(`${uri}${subcategories[0].name}`)
         .withCookies('access_token', cookie.ADMIN.access_token)
         .expectStatus(HttpStatus.OK);
     });
     it("Should update subcategory's category", () => {
-      const updatedCategory = categories[1];
+      const updatedCategory = categories[1].name;
       return pactum
         .spec()
-        .patch(`${uri}${subcategories[0]}`)
+        .patch(`${uri}${subcategories[0].name}`)
         .withBody({
           category: updatedCategory,
         })
@@ -181,7 +183,7 @@ describe('Subcategory controller E2E Test', () => {
       const updatedName = faker.lorem.word({ length: { min: 3, max: 50 } });
       return pactum
         .spec()
-        .patch(`${uri}${subcategories[0]}`)
+        .patch(`${uri}${subcategories[0].name}`)
         .withBody({
           name: updatedName,
         })
@@ -194,13 +196,13 @@ describe('Subcategory controller E2E Test', () => {
     it('Should not remove subcategory, UNAUTHORIZED', () => {
       return pactum
         .spec()
-        .delete(`${uri}${subcategories[1]}`)
+        .delete(`${uri}${subcategories[1].name}`)
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
     it('Should not remove subcategory, Have not permission', () => {
       return pactum
         .spec()
-        .delete(`${uri}${subcategories[1]}`)
+        .delete(`${uri}${subcategories[1].name}`)
         .withCookies('access_token', cookie.MODERATOR)
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
@@ -214,7 +216,7 @@ describe('Subcategory controller E2E Test', () => {
     it('Should remove subcategory', () => {
       return pactum
         .spec()
-        .delete(`${uri}${subcategories[1]}`)
+        .delete(`${uri}${subcategories[1].name}`)
         .withCookies('access_token', cookie.ADMIN.access_token)
         .expectStatus(HttpStatus.OK);
     });
