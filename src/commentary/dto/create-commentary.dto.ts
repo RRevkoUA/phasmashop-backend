@@ -27,5 +27,6 @@ export class CreateCommentaryDto {
     required: true,
     default: 'Product',
   })
+  @IsString()
   product: string;
 }
