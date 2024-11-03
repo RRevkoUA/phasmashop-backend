@@ -64,6 +64,18 @@ export class SubcategoryService {
     return subcategory;
   }
 
+  async findOneById(subcategoryId: Types.ObjectId | string) {
+    const subcategory = await this.subcategoryModel
+      .findById(subcategoryId);
+    if (!subcategory) {
+      this.logger.error('Subcategory "' + subcategoryId + '" not found');
+      throw new NotFoundException(
+        'Subcategory "' + subcategoryId + '" not found',
+      );
+    }
+    return subcategory;
+  }
+
   async update(
     subcategoryName: string,
     updateSubcategoryDto: UpdateSubcategoryDto,

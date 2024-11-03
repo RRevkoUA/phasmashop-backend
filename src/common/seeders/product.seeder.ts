@@ -18,7 +18,6 @@ export class ProductSeed {
 
   async seed(amount: number): Promise<(Product & Document)[]> {
     return new Promise(async (resolve, reject) => {
-      Logger.error('Seeding products', amount);
       while (amount) {
         const product: CreateProductDto = {
           isAvailable: true,
@@ -31,7 +30,6 @@ export class ProductSeed {
           tags: (await this.tagSeed.seed(3)).map(tag => tag._id.toString()),
           images: [],
         };
-        Logger.error('Creating product');
         await (await this.productModel.create(product)).save();        
         amount--;
         if (!amount) {

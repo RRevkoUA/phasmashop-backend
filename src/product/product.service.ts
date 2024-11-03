@@ -26,17 +26,16 @@ export class ProductService {
   ) {}
   async create(createProductDto: CreateProductDto, user: User & Document) {
     try {
-      //check for objects validity
-      await this.subcategoryService.findOne(createProductDto.subcategoryId);
+      await this.subcategoryService.findOneById(createProductDto.subcategoryId);
 
-      if (createProductDto.characteristics.length) {
+      if (createProductDto.characteristics?.length) {
         createProductDto.characteristics.forEach(async (characteristic) => {
           await this.characteristicService.findOne(
             characteristic.characteristic,
           );
         });
       }
-      if (createProductDto.tags.length) {
+      if (createProductDto.tags?.length) {
         createProductDto.tags.forEach(async (tag) => {
           await this.tagService.findOne(tag);
         });
@@ -46,7 +45,6 @@ export class ProductService {
         ...createProductDto,
         authorId: user._id,
       });
-      this.logger.verbose('Product created');
       return product;
     } catch (error) {
       this.logger.error('Something went wrong\n' + error);
@@ -67,7 +65,7 @@ export class ProductService {
     return product;
   }
 
-  async findOneById(id: string) {
+  async findOneById(id: Types.ObjectId | string) {
     const product = await this.productModel.findById(id);
     if (!product) {
       this.logger.error('Product not found');
