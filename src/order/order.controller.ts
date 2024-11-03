@@ -49,7 +49,7 @@ export class OrderController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string, @GetUser() user: User & Document) {
+  remove(@Param('id') id: string, @GetUser() user: User & Document): Promise<any> {
     return this.orderService.remove(id, user);
   }
 }
