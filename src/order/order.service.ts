@@ -63,7 +63,7 @@ export class OrderService {
     });
   }
 
-  async remove(id: string, user: User & Document) {
+  async remove(id: string, user: User & Document): Promise<any> {
     const order = await this.orderModel.findById(id);
 
     if (order.userId.toString() !== user._id.toString()) {

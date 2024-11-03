@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Document, Model } from 'mongoose';
 import { Category } from '../schemas';
 import { faker } from '@faker-js/faker';
 
@@ -10,7 +10,7 @@ export class CategorySeed {
     @InjectModel(Category.name) private categoryModule: Model<Category>,
   ) {}
 
-  async seed(amount: number): Promise<string[]> {
+  async seed(amount: number): Promise<(Category & Document)[]> {
     return new Promise(async (resolve, reject) => {
       while (amount) {
         const category = new this.categoryModule({
@@ -20,14 +20,14 @@ export class CategorySeed {
         await category.save();
         amount--;
         if (!amount) {
-          return resolve(await this.categoryModule.distinct('name'));
+          return resolve(await this.categoryModule.find());
         }
       }
       return reject('Cannot seed categories');
     });
   }
 
-  async clear() {
+  async clear(): Promise<{ deletedCount?: number }> {
     return await this.categoryModule.deleteMany({});
   }
 }

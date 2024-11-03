@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Document, Model } from 'mongoose';
 import { User } from 'src/common/schemas/User.schema';
 import { AuthService } from 'src/auth/auth.service';
 import { SignupAuthDto } from 'src/auth/dto';
@@ -15,8 +15,17 @@ export class UserSeed {
     private readonly authService: AuthService,
   ) {}
 
-  async seed(amount: number, possibleRoles: RoleEnum[]): Promise<Tokens> {
+  async seed(
+    amount: number,
+    possibleRoles: RoleEnum[],
+  ): Promise<
+    {
+      user: User & Document;
+      tokens: Tokens;
+    }[]
+  > {
     return new Promise(async (resolve, reject) => {
+      const users: { user: User & Document; tokens: Tokens }[] = [];
       while (amount) {
         const dto: SignupAuthDto = {
           email: faker.internet.email(),
@@ -26,9 +35,13 @@ export class UserSeed {
           phone: faker.helpers.fromRegExp('+38098[0-9]{7}'),
         };
         const tokens = await this.authService.signup(dto);
+        users.push({
+          tokens: tokens,
+          user: await this.getUserByToken(tokens.access_token),
+        });
         amount--;
         if (!amount) {
-          return resolve(tokens);
+          return resolve(users);
         }
       }
       return reject('Cannot seed users');
@@ -56,7 +69,26 @@ export class UserSeed {
     });
   }
 
-  async clear() {
+  async clear(): Promise<{ deletedCount?: number }> {
     return await this.userModule.deleteMany({});
+  }
+
+  async getUserByToken(token: string): Promise<User & Document> {
+    const { payload } = this.decodeToken(token);
+    return await this.userModule.findOne({ email: payload.email });
+  }
+
+
+  decodeToken(token: string) {
+    const parts = token.split('.');
+
+    if (parts.length !== 3) {
+      throw new Error('Invalid token format');
+    }
+
+    const header = JSON.parse(Buffer.from(parts[0], 'base64').toString('utf8'));
+    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
+
+    return { header, payload };
   }
 }

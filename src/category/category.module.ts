@@ -18,6 +18,6 @@ import { CategorySeed } from 'src/common/seeders';
   ],
   controllers: [CategoryController],
   providers: [CategoryService, CategorySeed],
-  exports: [CategoryService],
+  exports: [CategoryService, CategorySeed],
 })
 export class CategoryModule {}

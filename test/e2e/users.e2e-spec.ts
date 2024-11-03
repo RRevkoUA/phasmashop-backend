@@ -1,4 +1,4 @@
-import { HttpStatus, INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication, Logger } from '@nestjs/common';
 import { SignupAuthDto } from 'src/auth/dto';
 import { faker } from '@faker-js/faker';
 import * as pactum from 'pactum';
@@ -136,7 +136,7 @@ describe('UsersController E2E Test', () => {
     // TODO :: Issue#76
     it('Should get users', async () => {
       try {
-        cookie = await app.get(UserSeed).seed(20, [RoleEnum.MODERATOR]);
+        cookie = (await app.get(UserSeed).seed(20, [RoleEnum.MODERATOR])).pop().tokens;
       } catch (err) {
         console.error(err);
       }

@@ -7,6 +7,8 @@ import { ImageModule } from 'src/image/image.module';
 import { SubcategoryModule } from 'src/subcategory/subcategory.module';
 import { CharacteristicModule } from 'src/characteristic/characteristic.module';
 import { TagModule } from 'src/tag/tag.module';
+import { ProductSeed } from 'src/common/seeders/product.seeder';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -15,9 +17,10 @@ import { TagModule } from 'src/tag/tag.module';
     SubcategoryModule,
     CharacteristicModule,
     TagModule,
+    AuthModule,
   ],
   controllers: [ProductController],
-  providers: [ProductService],
-  exports: [ProductService],
+  providers: [ProductService, ProductSeed],
+  exports: [ProductService, ProductSeed],
 })
 export class ProductModule {}
