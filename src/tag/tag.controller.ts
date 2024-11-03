@@ -34,6 +34,11 @@ export class TagController {
     return this.tagService.findOne(tagName);
   }
 
+  @Get('id/:id')
+  findOneById(@Param('id') id: string) {
+    return this.tagService.findOneById(id);
+  }
+
   @Role(RoleEnum.ADMIN)
   @Patch(':tag')
   update(@Param('tag') tagName: string, @Body() updateTagDto: UpdateTagDto) {

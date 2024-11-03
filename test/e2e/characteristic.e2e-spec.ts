@@ -36,7 +36,10 @@ describe('Characteristic E2E Test', () => {
     app = appInstance;
     try {
       cookie = await app.get(UserSeed).seedRoles();
-      characteristics = await app.get(CharacteristicSeed).seed(10);
+      characteristics = await app
+        .get(CharacteristicSeed)
+        .seed(10)
+        .then((data) => data.map((item) => item.name));
     } catch (err) {
       throw err;
     }

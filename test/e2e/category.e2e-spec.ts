@@ -9,8 +9,7 @@ import * as pactum from 'pactum';
 
 describe('Category controller E2E Test', () => {
   let app: INestApplication;
-  let cookie: Tokens;
-  let cookieAdmin: Tokens;
+  let users: { [key: string]: Tokens } = {};
   let categories: string[];
 
   const port = Number.parseInt(process.env.APP_PORT) + 20;
@@ -27,6 +26,7 @@ describe('Category controller E2E Test', () => {
       port,
     );
     app = appInstance;
+    users = await app.get(UserSeed).seedRoles();
     pactum.request.setBaseUrl(host);
   });
   afterAll(async () => {
@@ -43,28 +43,18 @@ describe('Category controller E2E Test', () => {
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
     it('should not create new category, Have not permission', async () => {
-      try {
-        cookie = await app.get(UserSeed).seed(1, [RoleEnum.MODERATOR]);
-      } catch (err) {
-        console.error(err);
-      }
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', users.USER.access_token)
         .withBody(dto)
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
     it('Should create new category', async () => {
-      try {
-        cookieAdmin = await app.get(UserSeed).seed(1, [RoleEnum.ADMIN]);
-      } catch (err) {
-        console.error(err);
-      }
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .withBody(dto)
         .expectStatus(HttpStatus.CREATED);
     });
@@ -72,7 +62,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .withBody(dto)
         .expectBodyContains('Category already exists')
         .expectStatus(HttpStatus.FORBIDDEN);
@@ -81,7 +71,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .withBody({
           name: 'ab',
           isAvailable: true,
@@ -93,7 +83,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .post(path)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .withBody({
           name: 'a'.repeat(31),
           isAvailable: true,
@@ -109,7 +99,10 @@ describe('Category controller E2E Test', () => {
     // TODO :: Issue#76
     it('Should get all categories', async () => {
       try {
-        categories = await app.get(CategorySeed).seed(5);
+        categories = await app
+          .get(CategorySeed)
+          .seed(5)
+          .then((data) => data.map((item) => item.name));
       } catch (err) {
         console.error(err);
       }
@@ -139,7 +132,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .patch(`${uri}${categories[0]}`)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', users.USER.access_token)
         .withBody({
           name: faker.lorem.word({ length: { min: 3, max: 30 } }),
           isAvailable: true,
@@ -150,7 +143,7 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .patch(`${uri}${categories[0]}`)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .withBody({
           name: categories[1],
           isAvailable: true,
@@ -162,14 +155,14 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .patch(`${uri}${categories[0]}`)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .expectStatus(HttpStatus.OK);
     });
     it('Should update category', () => {
       return pactum
         .spec()
         .patch(`${uri}${categories[0]}`)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .withBody({
           name: faker.lorem.word({ length: { min: 3, max: 30 } }),
           isAvailable: true,
@@ -189,21 +182,21 @@ describe('Category controller E2E Test', () => {
       return pactum
         .spec()
         .delete(`${uri}${categories[2]}`)
-        .withCookies('access_token', cookie.access_token)
+        .withCookies('access_token', users.USER.access_token)
         .expectStatus(HttpStatus.UNAUTHORIZED);
     });
     it('Should remove category', () => {
       return pactum
         .spec()
         .delete(`${uri}${categories[2]}`)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .expectStatus(HttpStatus.OK);
     });
     it('Should not remove category, because category is not exist', () => {
       return pactum
         .spec()
         .delete(`${uri}${categories[2]}`)
-        .withCookies('access_token', cookieAdmin.access_token)
+        .withCookies('access_token', users.ADMIN.access_token)
         .expectStatus(HttpStatus.NOT_FOUND);
     });
   });
