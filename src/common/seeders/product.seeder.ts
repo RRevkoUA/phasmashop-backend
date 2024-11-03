@@ -20,9 +20,9 @@ export class ProductSeed {
     return new Promise(async (resolve, reject) => {
       Logger.error('Seeding products', amount);
       while (amount) {
-        let product: CreateProductDto = {
+        const product: CreateProductDto = {
           isAvailable: true,
-          price: faker.number.int(),
+          price: faker.number.int({min: 100, max: 10000}),
           article: faker.lorem.word({length: 10}).toLocaleLowerCase(),
           name: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
