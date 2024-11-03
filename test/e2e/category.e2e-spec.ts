@@ -44,7 +44,7 @@ describe('Category controller E2E Test', () => {
     });
     it('should not create new category, Have not permission', async () => {
       try {
-        cookie = await app.get(UserSeed).seed(1, [RoleEnum.MODERATOR]);
+        cookie = (await app.get(UserSeed).seed(1, [RoleEnum.MODERATOR]))[0].tokens;
       } catch (err) {
         console.error(err);
       }
@@ -57,7 +57,7 @@ describe('Category controller E2E Test', () => {
     });
     it('Should create new category', async () => {
       try {
-        cookieAdmin = await app.get(UserSeed).seed(1, [RoleEnum.ADMIN]);
+        cookieAdmin = await app.get(UserSeed).seed(1, [RoleEnum.ADMIN])[0].tokens;
       } catch (err) {
         console.error(err);
       }
@@ -109,7 +109,10 @@ describe('Category controller E2E Test', () => {
     // TODO :: Issue#76
     it('Should get all categories', async () => {
       try {
-        categories = await app.get(CategorySeed).seed(5);
+        categories = await app
+          .get(CategorySeed)
+          .seed(5)
+          .then((data) => data.map((item) => item.name));
       } catch (err) {
         console.error(err);
       }

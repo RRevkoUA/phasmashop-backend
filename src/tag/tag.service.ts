@@ -46,9 +46,22 @@ export class TagService {
     return tag;
   }
 
+  async findOneById(id: string) {
+    try {
+      const tag = await this.tagModel.findById(id);
+      if (!tag) {
+        throw new NotFoundException('Tag not found');
+      }
+      return tag;
+    } catch (error) {
+      this.logger.error('Tag not found');
+      throw new NotFoundException('Tag not found');
+    }
+  }
+
   async update(tagName: string, updateTagDto: UpdateTagDto) {
     try {
-      const tag = await this.findOne(tagName);
+      const tag = await this.findOneById(tagName);
       return await this.tagModel.findByIdAndUpdate(tag._id, updateTagDto, {
         new: true,
       });
@@ -64,14 +77,14 @@ export class TagService {
 
   async remove(tagName: string) {
     try {
-      const tag = await this.findOne(tagName);
+      const tag = await this.findOneById(tagName);
       return await this.tagModel.findByIdAndDelete(tag._id);
     } catch (error) {
       if (error.status === 404) {
         throw new NotFoundException(error.message);
       }
       this.logger.error('Something went wrong');
-      throw new ForbiddenException('Something went wrong');
+      throw error;
     }
   }
 }

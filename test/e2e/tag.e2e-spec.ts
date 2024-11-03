@@ -24,9 +24,12 @@ describe('TagController E2E Test', () => {
     const { app: appInstance } = await createTestingModule('tag-test', port);
     app = appInstance;
     users = await app.get(UserSeed).seedRoles();
-    tags = await app.get(TagSeed).seed(10);
+    tags = await app
+      .get(TagSeed)
+      .seed(10)
+      .then((data) => data.map((data) => data._id.toString()));
     pactum.request.setBaseUrl(host);
-  });
+  }, 10 * 1000);
 
   afterAll(async () => {
     await app.close();
@@ -66,20 +69,20 @@ describe('TagController E2E Test', () => {
     });
   });
 
-  describe('Tag getting', () => {
+  describe("Tag getting id's", () => {
     it('Should get all tags', () => {
       return pactum.spec().get(uri).expectStatus(HttpStatus.OK);
     });
     it('Should get tag by id', () => {
       return pactum
         .spec()
-        .get(uri + tags[0])
+        .get(uri + 'id/' + tags[0])
         .expectStatus(HttpStatus.OK);
     });
     it('Should not get tag by id, NOT FOUND', () => {
       return pactum
         .spec()
-        .get(uri + faker.lorem.word({ length: { min: 6, max: 10 } }))
+        .get(uri + 'id/' + faker.lorem.word({ length: { min: 6, max: 10 } }))
         .expectStatus(HttpStatus.NOT_FOUND);
     });
   });
@@ -147,7 +150,7 @@ describe('TagController E2E Test', () => {
     it('Should not update tag, NOT FOUND', () => {
       return pactum
         .spec()
-        .patch(uri + tags[0])
+        .patch(uri + faker.lorem.word({ length: { min: 6, max: 10 } }))
         .withBody({
           name: faker.lorem.word({ length: { min: 6, max: 10 } }),
           description: faker.lorem.word({ length: { min: 3, max: 30 } }),
